@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "transactions/components/transaction_row.html" as transaction_macros %}
+{% import "components/form_macros.html" as form_macros %}
+{% block content %}
+    <div class="flex-row-gap">
+        <div class="w-[200px] fixed-column card">{% include "transactions/account_list.html" %}</div>
+        <div class="flexible-column card">
+            {% if selected_account %}
+                {% include "transactions/core.html" %}
+            {% else %}
+                <p class="message">왼쪽에서 계좌를 선택해주세요.</p>
+            {% endif %}
+        </div>
+    </div>
+    <script>const TransactionTypes = {{ transaction_type_map | tojson}};</script>
+    <script src="{{ url_for('static', path='js/transactions/transactions.js') }}"></script>
+{% endblock %}

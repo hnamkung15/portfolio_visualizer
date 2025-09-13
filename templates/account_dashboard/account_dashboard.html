@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "components/form_macros.html" as form_macros %}
+{% block content %}
+  <div class="flex-row-gap">
+    <div class="w-[200px] fixed-column card">{% include "account_dashboard/account_list.html" %}</div>
+    <div class="flexible-column card">
+      {% if selected_account %}
+        {% include "account_dashboard/summary.html" %}
+      {% else %}
+        <p class="message">왼쪽에서 계좌를 선택해주세요.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

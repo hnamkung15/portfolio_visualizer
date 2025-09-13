@@ -1,0 +1,19 @@
+{% import "components/table_macros.html" as form_macros %}
+{% macro account_row(acc, owners, bank_names, account_countries, account_currency_types, account_types, account_categories) %}
+  <tr class="text-center" data-id="{{ acc.id }}">
+    {{ form_macros.td_select_editable("owner", owners, acc.owner, acc.id, "updateAccount") }}
+    {{ form_macros.td_select_editable("bank_name", bank_names, acc.bank_name, acc.id, "updateAccount") }}
+    {{ form_macros.td_input_editable("account_name", acc.account_name, acc.id, "updateAccount") }}
+    {{ form_macros.td_select_editable("account_country", account_countries, acc.account_country, acc.id, "updateAccount") }}
+    {{ form_macros.td_select_editable("account_currency_type", account_currency_types, acc.account_currency_type, acc.id, "updateAccount") }}
+    {{ form_macros.td_select_editable("account_type", account_types, acc.account_type, acc.id, "updateAccount") }}
+    {{ form_macros.td_select_editable("account_category", account_categories, acc.account_category, acc.id, "updateAccount") }}
+    <td class="border px-2 py-1">
+      <form method="post"
+            action="/account_setting/delete/{{ acc.id }}"
+            onsubmit="return confirmDelete()">
+        <button type="submit" class="small-btn btn-red" aria-label="삭제">&times;</button>
+      </form>
+    </td>
+  </tr>
+{% endmacro %}

@@ -1,0 +1,158 @@
+/* =====================
+   Tables
+===================== */
+/* 헤더 */
+.table-custom thead {
+  background-color: #f3f4f6; /* Tailwind bg-gray-100 */
+}
+
+.table-custom th {
+  padding: 0.25rem 0.5rem; /* Tailwind px-2 py-1 */
+  border: 1px solid #d1d5db; /* Tailwind border-gray-300 */
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 바디 */
+.table-custom td {
+  padding: 0.25rem 0.5rem; /* Tailwind px-2 py-1 */
+  border: 1px solid #d1d5db;
+  text-align: center;
+  width: auto;
+  white-space: nowrap;
+}
+
+.table-custom td select {
+  width: auto; /* 내용 길이에 맞춤 */
+}
+
+/* 합계 행 */
+.table-custom tfoot {
+  background-color: #f9fafb; /* Tailwind bg-gray-50 */
+  font-weight: 700; /* Tailwind font-bold */
+}
+
+/* =====================
+   Buttons
+===================== */
+/* 공통 버튼 스타일 */
+.btn {
+  display: inline-block;
+  color: white;
+  padding: 0.5rem 1.25rem; /* 버튼 안쪽 여백 */
+  margin: 0.5rem 0; /* 버튼 위아래 여백 */
+  border-radius: 0.25rem; /* 둥근 모서리 */
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.small-btn {
+  padding: 0.25rem 0.5rem; /* px-2 py-1 */
+  font-size: 0.75rem; /* text-xs */
+  line-height: 1rem; /* 높이 맞추기 */
+  border-radius: 0.25rem; /* 둥근 모서리 */
+}
+
+/* 버튼 색상별 */
+.btn-indigo {
+  background-color: #6366f1; /* Tailwind bg-indigo-500 */
+}
+.btn-indigo:hover {
+  background-color: #4f46e5; /* bg-indigo-600 */
+}
+
+.btn-blue {
+  background-color: #3b82f6; /* bg-blue-500 */
+}
+.btn-blue:hover {
+  background-color: #2563eb; /* bg-blue-600 */
+}
+
+.btn-green {
+  background-color: #22c55e; /* bg-green-500 */
+}
+.btn-green:hover {
+  background-color: #16a34a; /* bg-green-600 */
+}
+
+.btn-red {
+  background-color: #ef4444; /* Tailwind bg-red-500 */
+  color: white;
+}
+.btn-red:hover {
+  background-color: #dc2626; /* Tailwind bg-red-600 */
+}
+
+/* =====================
+   Flex Related
+===================== */
+
+.flex-row-gap {
+  display: flex;
+  column-gap: 1.5rem; /* Tailwind의 space-x-6 */
+}
+
+.fixed-column {
+  flex-shrink: 0;
+}
+
+.flexible-column {
+  flex-shrink: 1;
+}
+
+.my-flex-container {
+  display: flex; /* flex */
+  flex-wrap: wrap; /* flex-wrap */
+  gap: 1rem; /* gap-4 (Tailwind 1rem = 16px) */
+  align-items: center; /* items-center */
+  margin-bottom: 1.5rem; /* mb-6 (Tailwind 1.5rem = 24px) */
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between; /* 좌측: 텍스트, 우측: 버튼 */
+  align-items: center;
+}
+
+/* =====================
+   Form Fields
+===================== */
+
+.form-field {
+  border: 1px solid #d1d5db; /* Tailwind border-gray-300 */
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  border-radius: 0.25rem; /* rounded */
+}
+
+/* =====================
+   Etc
+===================== */
+
+.section-title {
+  font-size: 1.25rem; /* Tailwind의 text-xl */
+  font-weight: 600; /* Tailwind의 font-semibold */
+  margin-bottom: 1rem;
+}
+
+.card {
+  background-color: white; /* bg-white */
+  padding: 1.5rem; /* p-6 */
+  border-radius: 0.25rem; /* rounded */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* shadow */
+  margin-bottom: 1.5rem; /* mb-6 */
+  border: 1px solid #d1d5db; /* Tailwind의 border-gray-300 */
+  width: fit-content;
+}
+
+.list-item {
+  border-bottom: 1px solid #e5e7eb; /* border-b */
+  padding-top: 0.5rem; /* py-2 */
+  padding-bottom: 0.5rem;
+  font-size: 0.875rem; /* text-sm */
+}
+
+.message {
+  color: #6b7280; /* Tailwind text-gray-500 */
+  font-size: 0.875rem; /* Tailwind text-sm */
+}

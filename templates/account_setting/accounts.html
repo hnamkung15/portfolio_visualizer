@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "account_setting/components/account_row.html" as acc_macros %}
+{% import "components/form_macros.html" as form_macros %}
+{% block content %}
+  <h2 class="section-title">계좌 추가</h2>
+  <form method="post"
+        action="/account_setting/add"
+        class="flex flex-wrap gap-4 items-center mb-6">
+    {{ form_macros.form_select("owner", owners) }}
+    {{ form_macros.form_select("bank_name", bank_names) }}
+    {{ form_macros.form_input_text('account_name', '계좌 이름') }}
+    {{ form_macros.form_select("account_country", account_countries) }}
+    {{ form_macros.form_select("account_currency_type", account_currency_types) }}
+    {{ form_macros.form_select("account_type", account_types) }}
+    {{ form_macros.form_select("account_category", account_categories) }}
+    <button type="submit" class="btn btn-blue">추가</button>
+  </form>
+  <h2 class="section-title">계좌 목록</h2>
+  <table class="table-custom">
+    <thead>
+      <tr>
+        <th>owner</th>
+        <th>bank</th>
+        <th class="min-w-[400px]">name</th>
+        <th>country</th>
+        <th>currency_type</th>
+        <th>type</th>
+        <th>category</th>
+        <th>delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for acc in accounts %}
+        {{ acc_macros.account_row(acc, owners, bank_names, account_countries, account_currency_types, account_types, account_categories) }}
+      {% endfor %}
+    </tbody>
+  </table>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="{{ url_for('static', path='js/account_setting/account_setting.js') }}"></script>
+{% endblock %}

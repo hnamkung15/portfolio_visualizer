@@ -1,0 +1,45 @@
+{% set TD_CLASS = "border px-2 py-1" %}
+{% macro td_text_static(value) %}
+    <td class="border px-2 py-1">{{ value }}</td>
+{% endmacro %}
+{% macro td_input_editable(field_name, value, row_id, update_fn) %}
+    <td class="{{ TD_CLASS }}">
+        <input type="text"
+               value="{{ value or '' }}"
+               data-field="{{ field_name }}"
+               onchange="{{ update_fn }}({{ row_id }})"
+               class="w-full border px-2 py-1 rounded">
+    </td>
+{% endmacro %}
+{% macro td_number_editable(field_name, value, row_id, update_fn) %}
+    <td class="{{ TD_CLASS }}">
+        <input type="number"
+               value="{{ value }}"
+               step="0.001"
+               data-field="{{ field_name }}"
+               onchange="{{ update_fn }}({{ row_id }})"
+               class="w-full border rounded p-1 text-right" />
+    </td>
+{% endmacro %}
+{% macro td_date_editable(field_name, value, row_id, update_fn) %}
+    <td class="{{ TD_CLASS }}">
+        <input type="date"
+               value="{{ value }}"
+               data-field="{{ field_name }}"
+               onchange="{{ update_fn }}({{ row_id }})"
+               class="w-full border rounded px-1 py-0.5 text-sm" />
+    </td>
+{% endmacro %}
+{% macro td_select_editable(field_name, options, selected, row_id, update_fn="updateRow") %}
+    <td class="{{ TD_CLASS }}">
+        <select name="{{ field_name }}"
+                class="w-full border border-gray-300 px-2 py-1 rounded bg-white"
+                data-field="{{ field_name }}"
+                onchange="{{ update_fn }}({{ row_id }})">
+            {% for opt in options %}
+                <option value="{{ opt.value }}"
+                        {% if opt.value == selected %}selected{% endif %}>{{ opt.value }}</option>
+            {% endfor %}
+        </select>
+    </td>
+{% endmacro %}

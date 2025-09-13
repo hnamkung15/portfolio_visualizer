@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Portfolio Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet"
+          href="{{ url_for('static', path='/css/style.css') }}">
+    <style>
+      nav a {
+        padding: 10px;
+        text-decoration: none;
+        color: black;
+        border-bottom: 2px solid transparent;
+        margin-right: 10px;
+      }
+      nav a.active {
+        border-bottom: 2px solid blue;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-sm">
+    <!-- Navigation -->
+    <nav class="bg-white px-6 py-4 shadow-sm">
+      <a href="/dashboard"
+         class="{% if active == 'dashboard' %}active{% endif %}">대시보드</a>
+      <a href="/account_setting"
+         class="{% if active == 'account_setting' %}active{% endif %}">계좌 관리</a>
+      <a href="/account_dashboard"
+         class="{% if active == 'account_dashboard' %}active{% endif %}">계좌 정보</a>
+      <a href="/transactions"
+         class="{% if active == 'transactions' %}active{% endif %}">거래 내역</a>
+    </nav>
+    <hr />
+    <!-- Main Content Area -->
+    <div class="w-full px-6 py-4 bg-white rounded-lg shadow-sm">
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

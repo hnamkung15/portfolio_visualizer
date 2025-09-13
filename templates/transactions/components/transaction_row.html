@@ -1,0 +1,25 @@
+{% import "components/table_macros.html" as form_macros %}
+{% macro transaction_row(t, transaction_types) %}
+  <tr class="text-center">
+    {{ form_macros.td_date_editable("date", t.date, t.id, "updateTransaction") }}
+    {{ form_macros.td_select_editable("type", transaction_types, t.type.value, t.id, "updateTransaction") }}
+    {{ form_macros.td_number_editable("amount", t.amount, t.id, "updateTransaction") }}
+    {{ form_macros.td_input_editable("symbol", t.symbol, t.id, "updateTransaction") }}
+    {{ form_macros.td_number_editable("price", t.price, t.id, "updateTransaction") }}
+    {{ form_macros.td_number_editable("quantity", t.quantity, t.id, "updateTransaction") }}
+    {{ form_macros.td_number_editable("fee", t.fee, t.id, "updateTransaction") }}
+    {{ form_macros.td_number_editable("fx_rate", t.fx_rate, t.id, "updateTransaction") }}
+    {{ form_macros.td_text_static("%.3f"|format(t.quantity_balance) ) if t.quantity_balance is defined and t.quantity_balance is not none else form_macros.td_text_static("") }}
+    {{ form_macros.td_text_static("%.3f"|format(t.balance) ) if t.balance is defined and t.balance is not none else form_macros.td_text_static("") }}
+    {{ form_macros.td_input_editable("description", t.description, t.id, "updateTransaction") }}
+    <td class="border px-2 py-1">
+      <form method="post"
+            action="/transactions/delete/{{ t.id }}"
+            onsubmit="return confirm('정말 삭제하시겠습니까?');">
+        <button type="submit"
+                class="bg-red-300 hover:bg-red-400 text-white px-2 py-0.5 rounded"
+                aria-label="삭제">&times;</button>
+      </form>
+    </td>
+  </tr>
+{% endmacro %}

@@ -1,0 +1,21 @@
+<h2 class="section-title">계좌 목록</h2>
+<ul>
+  {% for account in accounts %}
+    {% set color_class = "" %}
+    {% if account.account_type.value == "Checking" %}
+      {% set color_class = "text-green-600" %}
+    {% elif account.account_type.value == "Saving" %}
+      {% set color_class = "text-blue-600" %}
+    {% elif account.account_type.value == "Stock" %}
+      {% set color_class = "text-purple-600" %}
+    {% else %}
+      {% set color_class = "text-gray-600" %}
+    {% endif %}
+    <li class="list-item">
+      <a href="/account_dashboard?account_id={{ account.id }}"
+         class="{{ color_class }} hover:underline {% if selected_account and selected_account.id == account.id %}font-bold{% endif %}">
+        {{ account.account_name }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>

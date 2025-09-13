@@ -1,0 +1,63 @@
+<div class="card">
+  <h2 class="section-title">거래 추가</h2>
+  <form id="transaction-form">
+    <input type="hidden" name="account_id" value="{{ selected_account.id }}" />
+    <div class="my-flex-container">
+      {{ form_macros.form_input_date("date", latest_date) }}
+      {{ form_macros.form_select("type", transaction_types, latest_type) }}
+      {{ form_macros.form_input_number('amount', '금액 (필수)') }}
+    </div>
+    <div class="my-flex-container">
+      {{ form_macros.form_input_text('symbol', '종목') }}
+      {{ form_macros.form_input_number('price', '가격') }}
+      {{ form_macros.form_input_number('quantity', '수량') }}
+    </div>
+    <div class="my-flex-container">
+      {{ form_macros.form_input_number('fee', '수수료') }}
+      {{ form_macros.form_input_number('fx_rate', '환율') }}
+    </div>
+    <input type="text"
+           placeholder="설명"
+           name="description"
+           class="form-field w-full" />
+    <button type="submit" class="btn btn-blue">추가</button>
+  </form>
+</div>
+<div class="card">
+  <h2 class="section-title">거래내역 목록</h2>
+  {% if transactions %}
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th class="min-w-[120px]">날짜</th>
+          <th class="min-w-[150px]">종류</th>
+          <th class="min-w-[110px]">금액</th>
+          <th class="min-w-[150px]">종목</th>
+          <th class="min-w-[110px]">가격</th>
+          <th class="min-w-[120px]">수량</th>
+          <th class="min-w-[120px]">수수료</th>
+          <th class="min-w-[120px]">환율</th>
+          <th class="min-w-[80px]">잔여</th>
+          <th class="min-w-[80px]">잔고</th>
+          <th class="min-w-[500px]">설명</th>
+          <th>액션</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in transactions %}{{ transaction_macros.transaction_row(t, transaction_types) }}{% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="message">거래내역이 없습니다.</p>
+  {% endif %}
+</div>
+<div class="card">
+  <h2 class="section-title">CSV 파일 업로드</h2>
+  <form method="post"
+        action="/transactions/upload_csv"
+        enctype="multipart/form-data">
+    <input type="hidden" name="account_id" value="{{ selected_account.id }}" />
+    <input type="file" name="csv_file" accept=".csv" class="mb-4" required />
+    <button type="submit" class="btn btn-green">업로드</button>
+  </form>
+</div>

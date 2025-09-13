@@ -1,0 +1,84 @@
+<h2 class="section-title">{{ selected_account.account_name }}</h2>
+{% if selected_account.account_type.value == "Stock" %}
+  {% set currency_symbol = "$" if selected_account.account_currency_type == "USD" else "₩" %}
+  {% set num_format = "{:,.2f}" if selected_account.account_currency_type == "USD" else "{:,.0f}" %}
+  <div class="card">
+    <h2 class="section-title">포트폴리오 현황</h2>
+    <table class="table-custom">
+      <thead>
+        <tr>
+          <th>종목코드</th>
+          <th>종목명</th>
+          <th>투자 금액</th>
+          <th>평가 금액</th>
+          <th>평가 수익</th>
+          <th>청산 이익</th>
+          <th>총 배당금</th>
+          <th>총 수익</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stock in portfolio_list %}
+          <tr class="{% if stock.quantity == 0 %} bg-gray-100 text-gray-400 {% endif %}">
+            <td>{{ stock.symbol }}</td>
+            <td>{{ stock.name }}</td>
+            <td>
+              {{ currency_symbol }}{{ num_format.format(stock.invested) }}
+              (={{ currency_symbol }}{{ num_format.format(stock.avg_price) }} × {{ num_format.format(stock.quantity) }})
+            </td>
+            <td>
+              {{ currency_symbol }}{{ num_format.format(stock.valuation) }}
+              (={{ currency_symbol }}{{ num_format.format(stock.current_price) }} × {{ num_format.format(stock.quantity) }}) | <span class="text-gray-400">{{ "{:.2f}".format(stock.valuation_pct) }}%</span>
+            </td>
+            <td {% if stock.returns_amount >= 0 %} text-green-600 {% else %} text-red-600 {% endif %}"> {{ currency_symbol }}{{ num_format.format(stock.returns_amount) }} ({{ num_format.format(stock.returns_pct) }}%)
+            </td>
+            <td>{{ currency_symbol }}{{ num_format.format(stock.realized_gain) }}</td>
+            <td>
+              {{ currency_symbol }}{{ num_format.format(stock.dividend_total) }} ({{ "{:.2f}".format(stock.dividend_pct) }}%)
+            </td>
+            <td>
+              <span class="{{ 'text-green-600' if stock.total_profit >= 0 else 'text-red-600' }}"> {{ currency_symbol }}{{ num_format.format(stock.total_profit) }} ({{ "{:.2f}".format(stock.total_profit_pct) }}%) </span>
+            </td>
+          </tr>
+        {% endfor %}
+        <tfoot>
+          <tr>
+            <td colspan="2">합계</td>
+            <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.invested) }}</td>
+            <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</td>
+            <td class="{{ 'text-green-600' if portfolio_totals.returns_amount >= 0 else 'text-red-600' }}">
+              {{ currency_symbol }}{{ num_format.format(portfolio_totals.returns_amount) }} ({{ "{:.2f}".format(portfolio_totals.returns_pct) }}%)
+            </td>
+            <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.realized_gain) }}</td>
+            <td>
+              {{ currency_symbol }}{{ num_format.format(portfolio_totals.dividend_total) }} ({{ "{:.2f}".format(portfolio_totals.dividend_pct) }}%)
+            </td>
+            <td class="{{ 'text-green-600' if portfolio_totals.total_profit >= 0 else 'text-red-600' }}">
+              {{ currency_symbol }}{{ num_format.format(portfolio_totals.total_profit) }} ({{ "{:.2f}".format(portfolio_totals.total_profit_pct) }}%)
+            </td>
+          </tr>
+        </tfoot>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2 class="section-title flex-between">
+      그래프
+      <button id="recompute-btn" class="btn btn-indigo">Recompute Graph Result</button>
+    </h2>
+    <div class="w-[800px] card">
+      <div>{{ graph_html_1|safe }}</div>
+    </div>
+    <div class="w-[800px] card">
+      <div>{{ graph_html_2|safe }}</div>
+    </div>
+    <div class="w-[800px] card">
+      <div>{{ graph_html_3|safe }}</div>
+    </div>
+    <div class="w-[800px] card">
+      <div>{{ graph_html_4|safe }}</div>
+    </div>
+  </div>
+{% else %}
+  <p class="message">주식 계좌가 아닙니다. 주식 계좌를 선택해주세요.</p>
+{% endif %}

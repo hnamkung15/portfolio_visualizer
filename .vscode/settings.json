@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "monosans.djlint"
+  },
+  "[jinja-html]": {
+    "editor.defaultFormatter": "RiversideValley.djlint"
+  },
+  "djlint.formatHtml": true,
+  "djlint.formatJinja": true
+}

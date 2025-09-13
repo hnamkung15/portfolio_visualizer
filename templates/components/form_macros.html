@@ -1,0 +1,34 @@
+{# ✅ 텍스트 input (placeholder 기반) #}
+{% macro form_input_text(name, placeholder="", required=false) %}
+  <input type="text"
+         name="{{ name }}"
+         placeholder="{{ placeholder }}"
+         {% if required %}required{% endif %}
+         class="form-field" />
+{% endmacro %}
+{# ✅ 숫자 입력용 input (예: 금액) #}
+{% macro form_input_number(name, placeholder="", required=false) %}
+  <input type="number"
+         name="{{ name }}"
+         step="0.001"
+         placeholder="{{ placeholder }}"
+         {% if required %}required{% endif %}
+         class="form-field" />
+{% endmacro %}
+{# ✅ 날짜 입력용 input #}
+{% macro form_input_date(name, value="") %}
+  <input type="date"
+         name="{{ name }}"
+         value="{{ value }}"
+         {% if required %}required{% endif %}
+         class="form-field" />
+{% endmacro %}
+{# ✅ 드롭다운 select 박스 #}
+{% macro form_select(name, options, selected="") %}
+  <select name="{{ name }}" class="form-field">
+    {% for opt in options %}
+      <option value="{{ opt.value }}"
+              {% if opt.value == selected %}selected{% endif %}>{{ opt.value }}</option>
+    {% endfor %}
+  </select>
+{% endmacro %}
