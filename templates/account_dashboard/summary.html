@@ -3,18 +3,18 @@
   {% set currency_symbol = "$" if selected_account.account_currency_type == "USD" else "₩" %}
   {% set num_format = "{:,.2f}" if selected_account.account_currency_type == "USD" else "{:,.0f}" %}
   <div class="card">
-    <h2 class="section-title">포트폴리오 현황</h2>
+    <h2 class="section-title">{{ _('portfolio_status') }}</h2>
     <table class="table-custom">
       <thead>
         <tr>
-          <th>종목코드</th>
-          <th>종목명</th>
-          <th>투자 금액</th>
-          <th>평가 금액</th>
-          <th>평가 수익</th>
-          <th>청산 이익</th>
-          <th>총 배당금</th>
-          <th>총 수익</th>
+          <th>{{ _('stock_code') }}</th>
+          <th>{{ _('stock_name') }}</th>
+          <th>{{ _('investment_amount') }}</th>
+          <th>{{ _('valuation_amount') }}</th>
+          <th>{{ _('valuation_profit') }}</th>
+          <th>{{ _('realized_profit') }}</th>
+          <th>{{ _('total_dividend') }}</th>
+          <th>{{ _('total_profit') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -43,7 +43,7 @@
         {% endfor %}
         <tfoot>
           <tr>
-            <td colspan="2">합계</td>
+            <td colspan="2">{{ _('total') }}</td>
             <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.invested) }}</td>
             <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</td>
             <td class="{{ 'text-green-600' if portfolio_totals.returns_amount >= 0 else 'text-red-600' }}">
@@ -63,8 +63,8 @@
   </div>
   <div class="card">
     <h2 class="section-title flex-between">
-      그래프
-      <button id="recompute-btn" class="btn btn-indigo">Recompute Graph Result</button>
+      {{ _('graph') }}
+      <button id="recompute-btn" class="btn btn-indigo">{{ _('recompute_graph') }}</button>
     </h2>
     <div class="w-[800px] card">
       <div>{{ graph_html_1|safe }}</div>
@@ -80,5 +80,5 @@
     </div>
   </div>
 {% else %}
-  <p class="message">주식 계좌가 아닙니다. 주식 계좌를 선택해주세요.</p>
+  <p class="message">{{ _('not_stock_account') }}</p>
 {% endif %}

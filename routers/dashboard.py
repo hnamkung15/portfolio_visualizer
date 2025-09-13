@@ -6,6 +6,7 @@ from db import get_db
 import requests
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
+from i18n_helpers import get_templates_with_i18n
 
 from models.account import Account, AccountCurrencyType, AccountType, AssetBreakdown
 from models.transactions import Transaction, TransactionType
@@ -18,9 +19,11 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
 
+
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
-    return templates.TemplateResponse(
+    i18n_templates = get_templates_with_i18n(request)
+    return i18n_templates.TemplateResponse(
         "dashboard/dashboard.html",
         {
             "request": request,
