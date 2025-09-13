@@ -1,13 +1,17 @@
 # 환경설정
-```
 ## First time setup
+```
 - Install homebrew
 - Install pyenv
+- Install python 3.11.9 using pyenv
 $ python3 -m venv .venv
+$ source env_load.sh
 $ pip install --upgrade pip
 $ pip install -r requirements.txt
+```
 
 ## Load environment
+```
 $ source env_load.sh
 ```
 # Todo List
