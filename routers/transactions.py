@@ -8,6 +8,11 @@ from models.transactions import Transaction, TransactionType
 from datetime import date
 from typing import Optional
 
+from services.transaction_service import (
+    annotate_with_balances,
+    annotate_with_quantities_by_symbol,
+)
+
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
@@ -32,6 +37,8 @@ def view_transactions(
             .order_by(Transaction.date.asc(), Transaction.id.asc())
             .all()
         )
+        annotate_with_balances(transactions, selected_account)
+        annotate_with_quantities_by_symbol(transactions, selected_account)
 
         if transactions:
             latest_type = transactions[-1].type

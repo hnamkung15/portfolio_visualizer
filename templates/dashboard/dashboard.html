@@ -475,12 +475,12 @@ async function load() {
     plugins: [ChartDataLabels]
   });
 }
-async function sync() {
-  const s = await getJSON('/api/download_data');
-}
-document.getElementById('dataSyncButton').addEventListener('click', async () => {
-  await sync();  // Call sync function when button is clicked
-});
-// load().catch(e => console.error(e));
+// async function sync() {
+//   const s = await getJSON('/api/download_data');
+// }
+// document.getElementById('dataSyncButton').addEventListener('click', async () => {
+//   await sync();  // Call sync function when button is clicked
+// });
+load().catch(e => console.error(e));
   </script>
 {% endblock %}

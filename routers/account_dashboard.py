@@ -48,9 +48,6 @@ def view_transactions(
 
         if selected_account.account_type == AccountType.STOCK:
 
-            annotate_with_balances(transactions, selected_account)
-            annotate_with_quantities_by_symbol(transactions, selected_account)
-
             portfolio = Portfolio(db)
 
             timestamps = []
