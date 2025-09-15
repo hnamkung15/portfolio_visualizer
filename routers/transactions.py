@@ -7,6 +7,7 @@ from models.account import Account
 from models.transactions import Transaction, TransactionType
 from datetime import date
 from typing import Optional
+from i18n_helpers import get_templates_with_i18n
 
 from services.transaction_service import (
     annotate_with_balances,
@@ -46,7 +47,8 @@ def view_transactions(
 
         transactions.sort(key=lambda t: (t.date, t.id), reverse=True)
 
-    return templates.TemplateResponse(
+    i18n_templates = get_templates_with_i18n(request)
+    return i18n_templates.TemplateResponse(
         "transactions/transactions.html",
         {
             "request": request,

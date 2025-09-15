@@ -2,31 +2,31 @@
 {% import "account_setting/components/account_row.html" as acc_macros %}
 {% import "components/form_macros.html" as form_macros %}
 {% block content %}
-  <h2 class="section-title">계좌 추가</h2>
+  <h2 class="section-title">{{ _('add_account') }}</h2>
   <form method="post"
         action="/account_setting/add"
         class="flex flex-wrap gap-4 items-center mb-6">
     {{ form_macros.form_select("owner", owners) }}
     {{ form_macros.form_select("bank_name", bank_names) }}
-    {{ form_macros.form_input_text('account_name', '계좌 이름') }}
+    {{ form_macros.form_input_text('account_name', _('account_name_label')) }}
     {{ form_macros.form_select("account_country", account_countries) }}
     {{ form_macros.form_select("account_currency_type", account_currency_types) }}
     {{ form_macros.form_select("account_type", account_types) }}
     {{ form_macros.form_select("account_category", account_categories) }}
-    <button type="submit" class="btn btn-blue">추가</button>
+    <button type="submit" class="btn btn-blue">{{ _('add') }}</button>
   </form>
-  <h2 class="section-title">계좌 목록</h2>
+  <h2 class="section-title">{{ _('account_list') }}</h2>
   <table class="table-custom">
     <thead>
       <tr>
-        <th>owner</th>
-        <th>bank</th>
-        <th class="min-w-[400px]">name</th>
-        <th>country</th>
-        <th>currency_type</th>
-        <th>type</th>
-        <th>category</th>
-        <th>delete</th>
+        <th>{{ _('owner') }}</th>
+        <th>{{ _('bank') }}</th>
+        <th class="min-w-[400px]">{{ _('name') }}</th>
+        <th>{{ _('country') }}</th>
+        <th>{{ _('currency_type') }}</th>
+        <th>{{ _('type') }}</th>
+        <th>{{ _('category') }}</th>
+        <th>{{ _('delete') }}</th>
       </tr>
     </thead>
     <tbody>

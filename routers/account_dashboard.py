@@ -7,6 +7,7 @@ from models.tickers import Ticker
 from models.transactions import Transaction, TransactionType
 from models.account import Account, AccountType
 from datetime import datetime, timedelta
+from i18n_helpers import get_templates_with_i18n
 
 from services.market_data_service import price_lookup
 from services.plot_service import graphs
@@ -217,7 +218,8 @@ def view_transactions(
             portfolio_list.sort(key=lambda s: s["valuation"], reverse=True)
         transactions.sort(key=lambda t: (t.date, t.id), reverse=True)
 
-    return templates.TemplateResponse(
+    i18n_templates = get_templates_with_i18n(request)
+    return i18n_templates.TemplateResponse(
         "account_dashboard/account_dashboard.html",
         {
             "request": request,

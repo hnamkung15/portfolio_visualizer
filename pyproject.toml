@@ -1,0 +1,2 @@
+[tool.babel]
+message_extractors = { "**/templates/**.html" = ["jinja2.ext.autoescape,jinja2.ext.with_", "**/templates/**.html"] }

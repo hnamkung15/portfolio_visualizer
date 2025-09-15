@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="{{ locale }}">
   <head>
     <meta charset="UTF-8" />
     <title>Portfolio Visualizer</title>
@@ -18,19 +18,48 @@
         border-bottom: 2px solid blue;
         font-weight: bold;
       }
+      .lang-switcher {
+        display: flex;
+        gap: 5px;
+        margin-left: auto;
+      }
+      .lang-btn {
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+        text-decoration: none;
+        color: #333;
+        border-radius: 3px;
+        font-size: 12px;
+      }
+      .lang-btn:hover {
+        background: #f0f0f0;
+      }
+      .lang-btn.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
     </style>
   </head>
   <body class="bg-gray-50 text-sm">
     <!-- Navigation -->
-    <nav class="bg-white px-6 py-4 shadow-sm">
-      <a href="/dashboard"
-         class="{% if active == 'dashboard' %}active{% endif %}">대시보드</a>
-      <a href="/account_setting"
-         class="{% if active == 'account_setting' %}active{% endif %}">계좌 관리</a>
-      <a href="/account_dashboard"
-         class="{% if active == 'account_dashboard' %}active{% endif %}">계좌 정보</a>
-      <a href="/transactions"
-         class="{% if active == 'transactions' %}active{% endif %}">거래 내역</a>
+    <nav class="bg-white px-6 py-4 shadow-sm flex items-center justify-between">
+      <div class="flex">
+        <a href="/dashboard"
+           class="{% if active == 'dashboard' %}active{% endif %}">{{ _('dashboard') }}</a>
+        <a href="/account_setting"
+           class="{% if active == 'account_setting' %}active{% endif %}">{{ _('account_management') }}</a>
+        <a href="/account_dashboard"
+           class="{% if active == 'account_dashboard' %}active{% endif %}">{{ _('account_info') }}</a>
+        <a href="/transactions"
+           class="{% if active == 'transactions' %}active{% endif %}">{{ _('transactions') }}</a>
+      </div>
+      <div class="lang-switcher">
+        <a href="/lang/ko" class="lang-btn {% if locale == 'ko' %}active{% endif %}">한국어</a>
+        <a href="/lang/en" class="lang-btn {% if locale == 'en' %}active{% endif %}">English</a>
+      </div>
     </nav>
     <hr />
     <!-- Main Content Area -->

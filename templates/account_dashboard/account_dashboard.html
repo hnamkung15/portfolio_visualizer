@@ -7,7 +7,7 @@
       {% if selected_account %}
         {% include "account_dashboard/summary.html" %}
       {% else %}
-        <p class="message">왼쪽에서 계좌를 선택해주세요.</p>
+        <p class="message">{{ _('select_account') }}</p>
       {% endif %}
     </div>
   </div>

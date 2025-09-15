@@ -3,12 +3,12 @@
   <!-- Add a row for the Data Sync button and label -->
   <div class="flex items-center mb-4">
     <button id="dataSyncButton"
-            class="bg-blue-500 text-white px-4 py-2 rounded mr-4">Data Sync</button>
-    <span id="lastSyncLabel" class="text-gray-600">마지막 동기화: 아직 동기화되지 않았습니다.</span>
-    <div id="loadingIndicator" class="ml-4 hidden">로딩 중...</div>
+            class="bg-blue-500 text-white px-4 py-2 rounded mr-4">{{ _('data_sync') }}</button>
+    <span id="lastSyncLabel" class="text-gray-600">{{ _('last_sync') }}</span>
+    <div id="loadingIndicator" class="ml-4 hidden">{{ _('loading') }}</div>
     <!-- 로딩 표시 -->
   </div>
-  <h2 class="text-lg font-semibold mt-4 mb-3">대시보드</h2>
+  <h2 class="text-lg font-semibold mt-4 mb-3">{{ _('dashboard') }}</h2>
   <!-- KPI cards -->
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-white shadow rounded p-4">
@@ -18,53 +18,53 @@
     </div>
     <!-- 총 자산 -->
     <div class="bg-white shadow rounded p-4">
-      <div class="text-lg text-gray-600 mb-1">총 자산</div>
+      <div class="text-lg text-gray-600 mb-1">{{ _('total_assets') }}</div>
       <div class="text-2xl font-semibold" id="total_both">--</div>
     </div>
     <!-- 자산 in USD -->
     <div class="bg-white shadow rounded p-4">
-      <div class="text-lg text-gray-600 mb-1">자산 in USD</div>
+      <div class="text-lg text-gray-600 mb-1">{{ _('assets_usd') }}</div>
       <div class="text-2xl font-semibold" id="total_usd">--</div>
       <div class="text-lg text-gray-600 mt-1" id="usd_percent"></div>
     </div>
     <!-- 자산 in KRW -->
     <div class="bg-white shadow rounded p-4">
-      <div class="text-lg text-gray-600 mb-1">자산 in KRW</div>
+      <div class="text-lg text-gray-600 mb-1">{{ _('assets_krw') }}</div>
       <div class="text-2xl font-semibold" id="total_krw">--</div>
       <div class="text-lg text-gray-600 mt-1" id="krw_percent"></div>
     </div>
   </div>
   <div class="bg-white shadow rounded p-4 mb-6">
-    <div class="text-sm font-medium mb-2">USD 계좌</div>
+    <div class="text-sm font-medium mb-2">{{ _('usd_accounts') }}</div>
     <div class="overflow-x-auto">
       <table class="table-auto w-full text-sm">
         <thead class="bg-gray-50">
           <tr>
-            <th class="p-2 text-left">은행</th>
-            <th class="p-2 text-left">계좌명</th>
-            <th class="p-2 text-right border-r-2">잔액(USD)</th>
-            <th class="p-2 text-right bg-blue-50">현금</th>
-            <th class="p-2 text-right bg-blue-50">적금</th>
-            <th class="p-2 text-right bg-blue-50">채권</th>
-            <th class="p-2 text-right bg-blue-50 border-r-2 border-gray-300">주식</th>
-            <th class="p-2 text-right border-r-2">환산(KRW)</th>
-            <th class="p-2 text-right bg-yellow-50">투자금액(USD)</th>
-            <th class="p-2 text-right bg-yellow-50">수익금액(USD)</th>
-            <th class="p-2 text-right bg-yellow-50 border-r-2 border-gray-300">수익률(%)</th>
+            <th class="p-2 text-left">{{ _('bank') }}</th>
+            <th class="p-2 text-left">{{ _('account_name') }}</th>
+            <th class="p-2 text-right border-r-2">{{ _('balance_usd') }}</th>
+            <th class="p-2 text-right bg-blue-50">{{ _('cash') }}</th>
+            <th class="p-2 text-right bg-blue-50">{{ _('saving') }}</th>
+            <th class="p-2 text-right bg-blue-50">{{ _('bond') }}</th>
+            <th class="p-2 text-right bg-blue-50 border-r-2 border-gray-300">{{ _('stock') }}</th>
+            <th class="p-2 text-right border-r-2">{{ _('converted_krw') }}</th>
+            <th class="p-2 text-right bg-yellow-50">{{ _('invested_amount_usd') }}</th>
+            <th class="p-2 text-right bg-yellow-50">{{ _('profit_amount_usd') }}</th>
+            <th class="p-2 text-right bg-yellow-50 border-r-2 border-gray-300">{{ _('return_rate') }}</th>
             <th class="p-2 text-right">
-              환율 효과(%)
+              {{ _('fx_effect') }}
               <br>
-              <span class="text-xs text-gray-500">(평균환율)</span>
+              <span class="text-xs text-gray-500">{{ _('avg_rate') }}</span>
             </th>
-            <th class="p-2 text-right">환율고려 수익금액(KRW)</th>
-            <th class="p-2 text-right">환율고려 수익률(%)</th>
+            <th class="p-2 text-right">{{ _('fx_considered_profit_krw') }}</th>
+            <th class="p-2 text-right">{{ _('fx_considered_return_rate') }}</th>
           </tr>
         </thead>
         <tbody id="usd_table">
         </tbody>
         <tfoot class="bg-gray-100 font-semibold">
           <tr>
-            <td colspan="2" class="p-2 text-right">총계</td>
+            <td colspan="2" class="p-2 text-right">{{ _('total') }}</td>
             <td class="p-2 text-right" id="usd_sum_usd"></td>
             <td class="p-2 text-right" id="usd_sum_cash"></td>
             <td class="p-2 text-right" id="usd_sum_saving"></td>
@@ -84,31 +84,31 @@
   </div>
   <!-- KRW 계좌 목록 -->
   <div class="bg-white shadow rounded p-4 mb-6">
-    <div class="text-sm font-medium mb-2">KRW 계좌</div>
+    <div class="text-sm font-medium mb-2">{{ _('krw_accounts') }}</div>
     <div class="overflow-x-auto">
       <table class="table-auto w-full text-sm">
         <thead class="bg-gray-50">
           <tr>
-            <th class="p-2 text-left">은행</th>
-            <th class="p-2 text-left">계좌명</th>
-            <th class="p-2 text-right border-r-2">잔액(KRW)</th>
+            <th class="p-2 text-left">{{ _('bank') }}</th>
+            <th class="p-2 text-left">{{ _('account_name') }}</th>
+            <th class="p-2 text-right border-r-2">{{ _('balance_krw') }}</th>
             <!-- Breakdown 컬럼 -->
-            <th class="p-2 text-right bg-blue-50">현금</th>
-            <th class="p-2 text-right bg-blue-50">적금</th>
-            <th class="p-2 text-right bg-blue-50">채권</th>
-            <th class="p-2 text-right bg-blue-50 border-r-2">주식</th>
-            <th class="p-2 text-right border-r-2">환산(USD)</th>
+            <th class="p-2 text-right bg-blue-50">{{ _('cash') }}</th>
+            <th class="p-2 text-right bg-blue-50">{{ _('saving') }}</th>
+            <th class="p-2 text-right bg-blue-50">{{ _('bond') }}</th>
+            <th class="p-2 text-right bg-blue-50 border-r-2">{{ _('stock') }}</th>
+            <th class="p-2 text-right border-r-2">{{ _('converted_usd') }}</th>
             <!-- 수익 관련 컬럼 -->
-            <th class="p-2 text-right bg-yellow-50">투자금액(KRW)</th>
-            <th class="p-2 text-right bg-yellow-50">수익금액(KRW)</th>
-            <th class="p-2 text-right bg-yellow-50 border-r-2">수익률(%)</th>
+            <th class="p-2 text-right bg-yellow-50">{{ _('invested_amount_krw') }}</th>
+            <th class="p-2 text-right bg-yellow-50">{{ _('profit_amount_krw') }}</th>
+            <th class="p-2 text-right bg-yellow-50 border-r-2">{{ _('return_rate') }}</th>
           </tr>
         </thead>
         <tbody id="krw_table">
         </tbody>
         <tfoot class="bg-gray-100 font-semibold">
           <tr>
-            <td colspan="2" class="p-2 text-right">총계</td>
+            <td colspan="2" class="p-2 text-right">{{ _('total') }}</td>
             <td class="p-2 text-right" id="krw_sum_krw"></td>
             <td class="p-2 text-right" id="krw_sum_cash"></td>
             <td class="p-2 text-right" id="krw_sum_saving"></td>
@@ -125,21 +125,21 @@
   </div>
   <!-- 보유 종목 상세 -->
   <div class="bg-white shadow rounded p-4 mb-6">
-    <div class="text-sm font-medium mb-2">보유 종목 상세 (USD)</div>
+    <div class="text-sm font-medium mb-2">{{ _('stock_details_usd') }}</div>
     <div class="overflow-x-auto">
       <table class="table-auto w-full text-sm">
         <thead class="bg-gray-50">
           <tr>
-            <th class="p-2 text-left">주식 이름</th>
-            <th class="p-2 text-left">종목 코드</th>
-            <th class="p-2 text-left">계좌명</th>
-            <th class="p-2 text-right">보유수량</th>
-            <th class="p-2 text-right">평균매입가 (USD)</th>
-            <th class="p-2 text-right">현재가 (USD)</th>
-            <th class="p-2 text-right">총 평가금액 (USD)</th>
-            <th class="p-2 text-right">총 시세차익 (USD)</th>
-            <th class="p-2 text-right">누적 배당금 (USD)</th>
-            <th class="p-2 text-right">수익률 (%)</th>
+            <th class="p-2 text-left">{{ _('stock_name') }}</th>
+            <th class="p-2 text-left">{{ _('stock_code') }}</th>
+            <th class="p-2 text-left">{{ _('account_name') }}</th>
+            <th class="p-2 text-right">{{ _('quantity') }}</th>
+            <th class="p-2 text-right">{{ _('avg_price_usd') }}</th>
+            <th class="p-2 text-right">{{ _('current_price_usd') }}</th>
+            <th class="p-2 text-right">{{ _('total_value_usd') }}</th>
+            <th class="p-2 text-right">{{ _('total_gain_usd') }}</th>
+            <th class="p-2 text-right">{{ _('total_dividend_usd') }}</th>
+            <th class="p-2 text-right">{{ _('return_rate') }}</th>
           </tr>
         </thead>
         <tbody id="stock_table_usd">
@@ -149,21 +149,21 @@
     </div>
   </div>
   <div class="bg-white shadow rounded p-4 mb-6">
-    <div class="text-sm font-medium mb-2">보유 종목 상세 (KRW)</div>
+    <div class="text-sm font-medium mb-2">{{ _('stock_details_krw') }}</div>
     <div class="overflow-x-auto">
       <table class="table-auto w-full text-sm">
         <thead class="bg-gray-50">
           <tr>
-            <th class="p-2 text-left">주식 이름</th>
-            <th class="p-2 text-left">종목 코드</th>
-            <th class="p-2 text-left">계좌명</th>
-            <th class="p-2 text-right">보유수량</th>
-            <th class="p-2 text-right">평균매입가 (KRW)</th>
-            <th class="p-2 text-right">현재가 (KRW)</th>
-            <th class="p-2 text-right">총 평가금액 (KRW)</th>
-            <th class="p-2 text-right">총 시세차익 (KRW)</th>
-            <th class="p-2 text-right">누적 배당금 (KRW)</th>
-            <th class="p-2 text-right">수익률 (%)</th>
+            <th class="p-2 text-left">{{ _('stock_name') }}</th>
+            <th class="p-2 text-left">{{ _('stock_code') }}</th>
+            <th class="p-2 text-left">{{ _('account_name') }}</th>
+            <th class="p-2 text-right">{{ _('quantity') }}</th>
+            <th class="p-2 text-right">{{ _('avg_price_krw') }}</th>
+            <th class="p-2 text-right">{{ _('current_price_krw') }}</th>
+            <th class="p-2 text-right">{{ _('total_value_krw') }}</th>
+            <th class="p-2 text-right">{{ _('total_gain_krw') }}</th>
+            <th class="p-2 text-right">{{ _('total_dividend_krw') }}</th>
+            <th class="p-2 text-right">{{ _('return_rate') }}</th>
           </tr>
         </thead>
         <tbody id="stock_table_krw">
@@ -173,7 +173,7 @@
     </div>
   </div>
   <div class="bg-white shadow rounded p-4 mb-6">
-    <div class="text-sm font-medium mb-2">자산 카테고리 구성</div>
+    <div class="text-sm font-medium mb-2">{{ _('asset_category_breakdown') }}</div>
     <canvas id="categoryPie" class="max-w-[400px] max-h-[400px]"></canvas>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>

@@ -13,6 +13,7 @@ from models.account import (
     Owner,
 )
 from fastapi.templating import Jinja2Templates
+from i18n_helpers import get_templates_with_i18n
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
@@ -21,7 +22,8 @@ router = APIRouter()
 @router.get("/account_setting", response_class=HTMLResponse)
 def account_setting(request: Request, db: Session = Depends(get_db)):
     accounts = db.query(Account).order_by(Account.order).all()
-    return templates.TemplateResponse(
+    i18n_templates = get_templates_with_i18n(request)
+    return i18n_templates.TemplateResponse(
         "account_setting/accounts.html",
         {
             "request": request,
