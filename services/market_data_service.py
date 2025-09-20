@@ -1,8 +1,8 @@
-from datetime import timedelta
-import requests
+from datetime import timedelta, datetime
 import time
 import FinanceDataReader as fdr
 import yfinance as yf
+import pytz
 
 from models.account import AssetType
 from models.price import Price
@@ -82,8 +82,56 @@ def not_searchable_symbol(symbol):
     return False
 
 
+def download_ticker_data(db, ticker, start_date, end_date):
+    symbol = ticker.symbol
+    print(
+        f"[market_data_service] download data for {symbol} from starting date ({start_date}) to yesterday ({end_date})"
+    )
+    try:
+        df = fdr.DataReader(symbol, str(start_date), str(end_date))
+        for idx, row in df.iterrows():
+            db.add(
+                Price(
+                    ticker_id=ticker.id,
+                    date=idx.date(),
+                    close=row["Close"],
+                    open=row.get("Open"),
+                    high=row.get("High"),
+                    low=row.get("Low"),
+                    volume=row.get("Volume"),
+                )
+            )
+
+        # Update last_data_sync timestamp to yesterday (the last date we downloaded)
+        ticker.last_data_sync = end_date
+        db.commit()
+        print(
+            f"[market_data_service] Successfully backfilled {len(df)} records for {symbol}"
+        )
+        return ticker
+    except Exception as e:
+        print(f"[ERROR] Failed to backfill {symbol} from FDR: {e}")
+        return None
+
+
+data_starting_date = "2020-01-02"
+
 price_cache = {}
 tracking_symbols = {}
+last_syncup_time = {}
+
+
+def load_ticker_into_cache(db, symbol: str, ticker):
+    prices = db.query(Price).filter(Price.ticker_id == ticker.id).all()
+    price_cache[symbol] = {str(p.date): float(p.close) for p in prices}
+    tracking_symbols[symbol] = ticker.id
+    last_syncup_time[symbol] = ticker.last_data_sync
+
+
+# This function is not supposed to return realtime price,
+# it only designed to return historical data. If date happens
+# to be the closed market date (e.g., weekends or holidays),
+# then return previous date data.
 
 
 def price_lookup(db, symbol: str, date):
@@ -93,75 +141,42 @@ def price_lookup(db, symbol: str, date):
     if not_searchable_symbol(symbol):
         return None
 
+    kst = pytz.timezone("Asia/Seoul")
+    yesterday = datetime.now(kst).date() - timedelta(days=1)
+
+    if date > str(yesterday):
+        return None
+
+    # Ensure cache data for ticker is loaded.
+    # We can check this by looking into tracking_tickers
     if symbol not in tracking_symbols:
         ticker = db.query(Ticker).filter_by(symbol=symbol).first()
+
+        # If symbol is not in Ticker table, it means, this is the first time
+        # seeing this symbol. We need to backfill data.
         if not ticker:
             ticker = Ticker(symbol=symbol)
             db.add(ticker)
             db.commit()
             db.refresh(ticker)
+            ticker = download_ticker_data(db, ticker, data_starting_date, yesterday)
 
-        prices = db.query(Price).filter(Price.ticker_id == ticker.id).all()
-        price_cache[symbol] = {str(p.date): float(p.close) for p in prices}
-        tracking_symbols[symbol] = ticker.id
+        load_ticker_into_cache(db, symbol, ticker)
 
-    ticker_id = tracking_symbols[symbol]
+    if last_syncup_time[symbol] < yesterday:
+        ticker = download_ticker_data(
+            db, ticker, last_syncup_time[symbol] + timedelta(days=1), yesterday
+        )
+        load_ticker_into_cache(db, symbol, ticker)
 
-    if symbol in price_cache and str(date) in price_cache[symbol]:
+    if str(date) in price_cache[symbol]:
         return price_cache[symbol][str(date)]
 
-    price = (
-        db.query(Price).filter(Price.ticker_id == ticker_id, Price.date == date).first()
-    )
-    if price:
-        return float(price.close)
-
+    ticker_id = tracking_symbols[symbol]
     past_price = (
         db.query(Price)
         .filter(Price.ticker_id == ticker_id, Price.date < date)
         .order_by(Price.date.desc())
         .first()
     )
-
-    future_price = (
-        db.query(Price)
-        .filter(Price.ticker_id == ticker_id, Price.date > date)
-        .order_by(Price.date.asc())
-        .first()
-    )
-
-    if past_price and future_price:
-        return float(past_price.close)
-
-    print("[market_data_service] download data ", symbol, date)
-    try:
-        df = fdr.DataReader(
-            symbol, date - timedelta(days=60), date + timedelta(days=60)
-        )
-        for idx, row in df.iterrows():
-            db.add(
-                Price(
-                    ticker_id=ticker_id,
-                    date=idx.date(),
-                    close=row["Close"],
-                    open=row.get("Open"),
-                    high=row.get("High"),
-                    low=row.get("Low"),
-                    volume=row.get("Volume"),
-                )
-            )
-        db.commit()
-    except Exception as e:
-        print(f"[ERROR] Failed to fetch {symbol} from FDR: {e}")
-
-    price = (
-        db.query(Price)
-        .filter(Price.ticker_id == ticker_id, Price.date <= date)
-        .order_by(Price.date.desc())
-        .first()
-    )
-    return float(price.close) if price else None
-
-
-# df = fdr.DataReader("VIIIX", "2025-09-01", "2025-09-10")
-# print(df)
+    return past_price

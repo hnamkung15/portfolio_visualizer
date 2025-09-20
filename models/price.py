@@ -1,8 +1,7 @@
 # models/price.py
-from sqlalchemy import Column, Integer, Numeric, Date, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Numeric, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from models.base import Base
-import datetime
 
 
 class Price(Base):
@@ -25,9 +24,6 @@ class RealTimePrice(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     ticker_id = Column(Integer, ForeignKey("tickers.id"), nullable=False)
-    timestamp = Column(
-        DateTime, default=datetime.datetime.utcnow, index=True, nullable=True
-    )
     price = Column(Numeric(precision=12, scale=4), nullable=True)
 
     ticker = relationship("Ticker", backref="realtime_prices")
