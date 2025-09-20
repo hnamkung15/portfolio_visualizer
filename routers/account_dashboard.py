@@ -11,10 +11,6 @@ from datetime import datetime, timedelta
 from services.market_data_service import price_lookup
 from services.plot_service import graphs
 from services.portfolio_service import Portfolio
-from services.transaction_service import (
-    annotate_with_balances,
-    annotate_with_quantities_by_symbol,
-)
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
