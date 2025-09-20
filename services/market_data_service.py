@@ -139,6 +139,7 @@ def price_lookup(db, symbol: str, date):
         print("[ERROR] symbol is empty", date)
         return None
     if not_searchable_symbol(symbol):
+        print("[Warning] not_searchable_symbol", symbol, date)
         return None
 
     yesterday = get_kst_yesterday()
@@ -181,4 +182,7 @@ def price_lookup(db, symbol: str, date):
         .order_by(Price.date.desc())
         .first()
     )
-    return past_price
+    if past_price:
+        return float(past_price.close)
+    else:
+        print("[Error] no data?", symbol, date)
