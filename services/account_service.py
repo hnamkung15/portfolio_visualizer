@@ -52,7 +52,7 @@ def get_stock_account_networth(db: Session, account: Account) -> float:
         if abs(quantity) < 1e-6:
             continue
 
-        price = get_current_symbol_price(symbol)
+        price = get_current_symbol_price(symbol, db)
         valuation = price * quantity
         dividend = dividends_by_symbol.get(symbol, 0.0)
         profit = valuation - cost_basis + dividend

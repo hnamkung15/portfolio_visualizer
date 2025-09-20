@@ -23,46 +23,28 @@ def get_current_symbol_type(symbol: str):
     return AssetType.STOCK
 
 
-def get_current_symbol_price(symbol: str) -> float:
-    now = time.time()
-
+def get_current_symbol_price(symbol: str, db) -> float:
     if symbol == "Conviva":
         return 1.23
     elif symbol == "US912810SN90":  # 미국 국채 50년 5월 15일 만기
-        return 4781.06 / 10
+        return 4935.13 / 10
     elif symbol == "US912810SQ22":  # 미국 국채 40년 8월 15일 만기
-        return 10459.28 / 17
+        return 10735.57 / 17
     elif symbol == "US91282CAJ09":  # 미국 국채 25년 8월 31일 만기
         return 9993.71 / 10
     elif symbol == "US91282CAT80":  # 미국 국채 25년 10월 31일 만기
-        return 9924.85 / 10
+        return 9969.59 / 10
     elif symbol == "US91282CBQ33":  # 미국 국채 26년 2월 28일 만기
-        return 9832.47 / 10
-    elif symbol == "VFFSX":
-        return 316.72
-    elif symbol == "VIIIX":
-        return 526.17
+        return 9857.82 / 10
 
     if symbol.isdigit():
         symbol = f"{symbol}"
 
-    try:
-        df = fdr.DataReader(symbol)
-        if not df.empty:
-            price = df["Close"].iloc[-1]
-            print("price found, ", symbol, ":", price)
-            return float(price)
-    except Exception as e:
-        print(f"[WARN] FDR failed for {symbol}: {e}")
-
-    try:
-        ticker = yf.Ticker(f"{symbol}.KS")
-        price = ticker.history(period="1d")["Close"].iloc[-1]
-        print("price found, ", symbol, ":", price)
-        return float(price)
-    except Exception as e:
-        print(f"[ERROR] Failed to fetch price for {symbol}: {e}")
-        return 0.0
+    yesterday = get_kst_yesterday()
+    price = price_lookup(db, symbol, yesterday)
+    if price:
+        return price
+    return 0
 
 
 def not_searchable_symbol(symbol):
@@ -184,5 +166,5 @@ def price_lookup(db, symbol: str, date):
     )
     if past_price:
         return float(past_price.close)
-    else:
-        print("[Error] no data?", symbol, date)
+    print("[Error] no data?", symbol, date)
+    return None
