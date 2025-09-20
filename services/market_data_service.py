@@ -106,7 +106,7 @@ def download_ticker_data(db, ticker, start_date, end_date):
         ticker.last_data_sync = end_date
         db.commit()
         print(
-            f"[market_data_service] Successfully backfilled {len(df)} records for {symbol}"
+            f"[market_data_service] Successfully downloaded ({len(df)}) records for {symbol}"
         )
         return ticker
     except Exception as e:
@@ -162,10 +162,13 @@ def price_lookup(db, symbol: str, date):
 
         load_ticker_into_cache(db, symbol, ticker)
 
-    if last_syncup_time[symbol] < yesterday:
-        ticker = download_ticker_data(
-            db, ticker, last_syncup_time[symbol] + timedelta(days=1), yesterday
+    if last_syncup_time[symbol] is None or last_syncup_time[symbol] < yesterday:
+        start_date = (
+            last_syncup_time[symbol] + timedelta(days=1)
+            if last_syncup_time[symbol]
+            else data_starting_date
         )
+        ticker = download_ticker_data(db, ticker, start_date, yesterday)
         load_ticker_into_cache(db, symbol, ticker)
 
     if str(date) in price_cache[symbol]:
