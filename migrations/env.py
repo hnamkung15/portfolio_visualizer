@@ -11,6 +11,8 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from db import DATABASE_URL
 from models.base import Base
+# Import all models to ensure they are registered with SQLAlchemy
+import models
 
 
 # this is the Alembic Config object, which provides
