@@ -2,11 +2,11 @@ from datetime import timedelta, datetime
 import time
 import FinanceDataReader as fdr
 import yfinance as yf
-import pytz
 
 from models.account import AssetType
 from models.price import Price
 from models.tickers import Ticker
+from utils.time_utils import get_kst_yesterday
 
 
 def get_current_symbol_type(symbol: str):
@@ -141,8 +141,7 @@ def price_lookup(db, symbol: str, date):
     if not_searchable_symbol(symbol):
         return None
 
-    kst = pytz.timezone("Asia/Seoul")
-    yesterday = datetime.now(kst).date() - timedelta(days=1)
+    yesterday = get_kst_yesterday()
 
     if date > str(yesterday):
         return None

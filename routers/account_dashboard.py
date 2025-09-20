@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from services.market_data_service import price_lookup
 from services.plot_service import graphs
 from services.portfolio_service import Portfolio
+from utils.time_utils import get_kst_yesterday, is_weekend
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
@@ -58,9 +59,9 @@ def view_transactions(
             dividend_income = []
             total_income = []
 
-            start_date = transactions[0].date
-            end_date = datetime.today().date()
-            num_days = (end_date - start_date).days + 1
+             start_date = transactions[0].date
+             end_date = get_kst_yesterday()
+             num_days = (end_date - start_date).days + 1
 
             tx_idx = 0
             n = len(transactions)
@@ -94,8 +95,8 @@ def view_transactions(
 
                     tx_idx += 1
 
-                if current_date.weekday() in (5, 6):
-                    continue
+                 if is_weekend(current_date):
+                     continue
 
                 timestamps.append(current_date.strftime("%Y-%m-%d"))
 
