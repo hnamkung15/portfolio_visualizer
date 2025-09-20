@@ -2,11 +2,11 @@
    Tables
 ===================== */
 /* 헤더 */
-.table-custom thead {
+.table-general thead {
   background-color: #f3f4f6; /* Tailwind bg-gray-100 */
 }
 
-.table-custom th {
+.table-general th {
   padding: 0.25rem 0.5rem; /* Tailwind px-2 py-1 */
   border: 1px solid #d1d5db; /* Tailwind border-gray-300 */
   font-weight: 600;
@@ -14,7 +14,7 @@
 }
 
 /* 바디 */
-.table-custom td {
+.table-general td {
   padding: 0.25rem 0.5rem; /* Tailwind px-2 py-1 */
   border: 1px solid #d1d5db;
   text-align: center;
@@ -22,12 +22,12 @@
   white-space: nowrap;
 }
 
-.table-custom td select {
+.table-general td select {
   width: auto; /* 내용 길이에 맞춤 */
 }
 
 /* 합계 행 */
-.table-custom tfoot {
+.table-general tfoot {
   background-color: #f9fafb; /* Tailwind bg-gray-50 */
   font-weight: 700; /* Tailwind font-bold */
 }
