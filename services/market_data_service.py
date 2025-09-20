@@ -143,7 +143,7 @@ def price_lookup(db, symbol: str, date):
 
     yesterday = get_kst_yesterday()
 
-    if date > str(yesterday):
+    if date > yesterday:
         return None
 
     # Ensure cache data for ticker is loaded.
