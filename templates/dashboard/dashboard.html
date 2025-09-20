@@ -1,37 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
-  <!-- Add a row for the Data Sync button and label -->
-  <div class="flex items-center mb-4">
-    <button id="dataSyncButton"
-            class="bg-blue-500 text-white px-4 py-2 rounded mr-4">Data Sync</button>
-    <span id="lastSyncLabel" class="text-gray-600">마지막 동기화: 아직 동기화되지 않았습니다.</span>
-    <div id="loadingIndicator" class="ml-4 hidden">로딩 중...</div>
-    <!-- 로딩 표시 -->
-  </div>
-  <h2 class="text-lg font-semibold mt-4 mb-3">대시보드</h2>
-  <!-- KPI cards -->
+  <h2 class="section-title">대시보드</h2>
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white shadow rounded p-4">
-      <div class="text-lg text-gray-600 mb-1">USD → KRW</div>
-      <div id="rate" class="text-4xl font-semibold">--</div>
-      <div id="rate_asof" class="text-lg text-gray-600 mt-1"></div>
+    <div class="card-dashboard">
+      <div class="card-label">USD → KRW</div>
+      <div id="rate" class="card-rate">--</div>
+      <div id="rate_asof" class="card-subtext"></div>
     </div>
     <!-- 총 자산 -->
-    <div class="bg-white shadow rounded p-4">
-      <div class="text-lg text-gray-600 mb-1">총 자산</div>
-      <div class="text-2xl font-semibold" id="total_both">--</div>
+    <div class="card-dashboard">
+      <div class="card-label">총 자산</div>
+      <div class="card-value" id="total_both">--</div>
     </div>
     <!-- 자산 in USD -->
-    <div class="bg-white shadow rounded p-4">
-      <div class="text-lg text-gray-600 mb-1">자산 in USD</div>
-      <div class="text-2xl font-semibold" id="total_usd">--</div>
-      <div class="text-lg text-gray-600 mt-1" id="usd_percent"></div>
+    <div class="card-dashboard">
+      <div class="card-label">자산 in USD</div>
+      <div class="card-value" id="total_usd">--</div>
+      <div class="card-subtext" id="usd_percent"></div>
     </div>
     <!-- 자산 in KRW -->
-    <div class="bg-white shadow rounded p-4">
-      <div class="text-lg text-gray-600 mb-1">자산 in KRW</div>
-      <div class="text-2xl font-semibold" id="total_krw">--</div>
-      <div class="text-lg text-gray-600 mt-1" id="krw_percent"></div>
+    <div class="card-dashboard">
+      <div class="card-label">자산 in KRW</div>
+      <div class="card-value" id="total_krw">--</div>
+      <div class="card-subtext" id="krw_percent"></div>
     </div>
   </div>
   <div class="bg-white shadow rounded p-4 mb-6">

@@ -126,6 +126,39 @@
 }
 
 /* =====================
+   Dashboard Cards
+===================== */
+.card-dashboard {
+  background-color: white; /* bg-white */
+  border-radius: 0.25rem; /* rounded */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* shadow */
+  padding: 1rem; /* p-4 */
+}
+
+.card-label {
+  font-size: 1.125rem; /* text-lg */
+  color: #6b7280; /* text-gray-600 */
+  margin-bottom: 0.25rem; /* mb-1 */
+}
+
+.card-value {
+  font-size: 1.5rem; /* text-2xl */
+  line-height: 2rem; /* text-2xl */
+  font-weight: 600; /* font-semibold */
+}
+
+.card-subtext {
+  font-size: 1.125rem; /* text-lg */
+  color: #6b7280; /* text-gray-600 */
+  margin-top: 0.25rem; /* mt-1 */
+}
+
+.card-rate {
+  font-size: 2.25rem; /* text-4xl */
+  line-height: 2.5rem; /* text-4xl */
+  font-weight: 600; /* font-semibold */
+}
+/* =====================
    Etc
 ===================== */
 
