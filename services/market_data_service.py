@@ -83,17 +83,16 @@ def download_ticker_data(db, ticker, start_date, end_date):
                     volume=row.get("Volume"),
                 )
             )
-
-        # Update last_data_sync timestamp to yesterday (the last date we downloaded)
-        ticker.last_data_sync = end_date
-        db.commit()
         print(
             f"[market_data_service] Successfully downloaded ({len(df)}) records for {symbol}"
         )
-        return ticker
     except Exception as e:
-        print(f"[ERROR] Failed to backfill {symbol} from FDR: {e}")
-        return None
+        print(f"[Warning] Failed to backfill {symbol} from FDR: {e}")
+
+    # Update last_data_sync timestamp to yesterday (the last date we downloaded)
+    ticker.last_data_sync = end_date
+    db.commit()
+    return ticker
 
 
 data_starting_date = "2020-01-02"
@@ -168,3 +167,7 @@ def price_lookup(db, symbol: str, date):
         return float(past_price.close)
     print("[Error] no data?", symbol, date)
     return None
+
+
+# df = fdr.DataReader("VFFSX", "2025-09-10", "2025-09-20")
+# print(df)
