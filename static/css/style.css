@@ -32,6 +32,27 @@
   font-weight: 700; /* Tailwind font-bold */
 }
 
+.table-dashboard {
+  width: 100%; /* w-full */
+  border-collapse: collapse; /* Tailwind의 table-auto는 기본적으로 collapse */
+  font-size: 0.875rem; /* text-sm (14px) */
+  line-height: 1.25rem;
+  table-layout: auto; /* table-auto */
+}
+
+.table-dashboard thead {
+  background-color: #f3f4f6; /* Tailwind bg-gray-100 */
+}
+
+.table-dashboard th,
+.table-dashboard td {
+  padding: 0.5rem; /* Tailwind p-2 */
+  text-align: right;
+}
+.table-dashboard th.text-left,
+.table-dashboard td.text-left {
+  text-align: left !important;
+}
 /* =====================
    Buttons
 ===================== */

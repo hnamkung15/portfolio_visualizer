@@ -27,84 +27,84 @@
   </div>
   <div class="card">
     <div class="section-title">USD 계좌</div>
-    <table class="table-auto w-full text-sm">
-      <thead class="bg-gray-50">
+    <table class="table-dashboard">
+      <thead>
         <tr>
-          <th class="p-2 text-left">은행</th>
-          <th class="p-2 text-left">계좌명</th>
-          <th class="p-2 text-right border-r-2">잔액(USD)</th>
-          <th class="p-2 text-right bg-blue-50">현금</th>
-          <th class="p-2 text-right bg-blue-50">적금</th>
-          <th class="p-2 text-right bg-blue-50">채권</th>
-          <th class="p-2 text-right bg-blue-50 border-r-2 border-gray-300">주식</th>
-          <th class="p-2 text-right border-r-2">환산(KRW)</th>
-          <th class="p-2 text-right bg-yellow-50">투자금액(USD)</th>
-          <th class="p-2 text-right bg-yellow-50">수익금액(USD)</th>
-          <th class="p-2 text-right bg-yellow-50 border-r-2 border-gray-300">수익률(%)</th>
-          <th class="p-2 text-right">
+          <th class="text-left">은행</th>
+          <th class="text-left">계좌명</th>
+          <th class="border-r-2">잔액(USD)</th>
+          <th class="bg-blue-50">현금</th>
+          <th class="bg-blue-50">적금</th>
+          <th class="bg-blue-50">채권</th>
+          <th class="bg-blue-50 border-r-2 border-gray-300">주식</th>
+          <th class="border-r-2">환산(KRW)</th>
+          <th class="bg-yellow-50">투자금액(USD)</th>
+          <th class="bg-yellow-50">수익금액(USD)</th>
+          <th class="bg-yellow-50 border-r-2 border-gray-300">수익률(%)</th>
+          <th>
             환율 효과(%)
             <br>
             <span class="text-xs text-gray-500">(평균환율)</span>
           </th>
-          <th class="p-2 text-right">환율고려 수익금액(KRW)</th>
-          <th class="p-2 text-right">환율고려 수익률(%)</th>
+          <th>환율고려 수익금액(KRW)</th>
+          <th>환율고려 수익률(%)</th>
         </tr>
       </thead>
       <tbody id="usd_table">
       </tbody>
       <tfoot class="bg-gray-100 font-semibold">
         <tr>
-          <td colspan="2" class="p-2 text-right">총계</td>
-          <td class="p-2 text-right" id="usd_sum_usd"></td>
-          <td class="p-2 text-right" id="usd_sum_cash"></td>
-          <td class="p-2 text-right" id="usd_sum_saving"></td>
-          <td class="p-2 text-right" id="usd_sum_bond"></td>
-          <td class="p-2 text-right" id="usd_sum_stock"></td>
-          <td class="p-2 text-right" id="usd_sum_krw"></td>
-          <td class="p-2 text-right" id="usd_sum_invested_usd"></td>
-          <td class="p-2 text-right" id="usd_sum_return_amt"></td>
-          <td class="p-2 text-right" id="usd_sum_return_pct"></td>
-          <td class="p-2 text-right" id="usd_sum_fx_effect_pct">-</td>
-          <td class="p-2 text-right" id="usd_sum_fx_return_amt">!</td>
-          <td class="p-2 text-right" id="usd_sum_fx_return_pct">!</td>
+          <td colspan="2">총계</td>
+          <td id="usd_sum_usd"></td>
+          <td id="usd_sum_cash"></td>
+          <td id="usd_sum_saving"></td>
+          <td id="usd_sum_bond"></td>
+          <td id="usd_sum_stock"></td>
+          <td id="usd_sum_krw"></td>
+          <td id="usd_sum_invested_usd"></td>
+          <td id="usd_sum_return_amt"></td>
+          <td id="usd_sum_return_pct"></td>
+          <td id="usd_sum_fx_effect_pct">-</td>
+          <td id="usd_sum_fx_return_amt">!</td>
+          <td id="usd_sum_fx_return_pct">!</td>
         </tr>
       </tfoot>
     </table>
   </div>
   <div class="card">
     <div class="section-title">KRW 계좌</div>
-    <table class="table-auto w-full text-sm">
-      <thead class="bg-gray-50">
+    <table class="table-dashboard">
+      <thead>
         <tr>
-          <th class="p-2 text-left">은행</th>
-          <th class="p-2 text-left">계좌명</th>
-          <th class="p-2 text-right border-r-2">잔액(KRW)</th>
+          <th class="text-left">은행</th>
+          <th class="text-left">계좌명</th>
+          <th class="border-r-2">잔액(KRW)</th>
           <!-- Breakdown 컬럼 -->
-          <th class="p-2 text-right bg-blue-50">현금</th>
-          <th class="p-2 text-right bg-blue-50">적금</th>
-          <th class="p-2 text-right bg-blue-50">채권</th>
-          <th class="p-2 text-right bg-blue-50 border-r-2">주식</th>
-          <th class="p-2 text-right border-r-2">환산(USD)</th>
+          <th class="bg-blue-50">현금</th>
+          <th class="bg-blue-50">적금</th>
+          <th class="bg-blue-50">채권</th>
+          <th class="bg-blue-50 border-r-2">주식</th>
+          <th class="border-r-2">환산(USD)</th>
           <!-- 수익 관련 컬럼 -->
-          <th class="p-2 text-right bg-yellow-50">투자금액(KRW)</th>
-          <th class="p-2 text-right bg-yellow-50">수익금액(KRW)</th>
-          <th class="p-2 text-right bg-yellow-50 border-r-2">수익률(%)</th>
+          <th class="bg-yellow-50">투자금액(KRW)</th>
+          <th class="bg-yellow-50">수익금액(KRW)</th>
+          <th class="bg-yellow-50 border-r-2">수익률(%)</th>
         </tr>
       </thead>
       <tbody id="krw_table">
       </tbody>
       <tfoot class="bg-gray-100 font-semibold">
         <tr>
-          <td colspan="2" class="p-2 text-right">총계</td>
-          <td class="p-2 text-right" id="krw_sum_krw"></td>
-          <td class="p-2 text-right" id="krw_sum_cash"></td>
-          <td class="p-2 text-right" id="krw_sum_saving"></td>
-          <td class="p-2 text-right" id="krw_sum_bond"></td>
-          <td class="p-2 text-right" id="krw_sum_stock"></td>
-          <td class="p-2 text-right" id="krw_sum_usd"></td>
-          <td class="p-2 text-right" id="krw_sum_invested_krw"></td>
-          <td class="p-2 text-right" id="krw_sum_return_amt"></td>
-          <td class="p-2 text-right" id="krw_sum_return_pct"></td>
+          <td colspan="2">총계</td>
+          <td id="krw_sum_krw"></td>
+          <td id="krw_sum_cash"></td>
+          <td id="krw_sum_saving"></td>
+          <td id="krw_sum_bond"></td>
+          <td id="krw_sum_stock"></td>
+          <td id="krw_sum_usd"></td>
+          <td id="krw_sum_invested_krw"></td>
+          <td id="krw_sum_return_amt"></td>
+          <td id="krw_sum_return_pct"></td>
         </tr>
       </tfoot>
     </table>

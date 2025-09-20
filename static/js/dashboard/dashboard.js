@@ -151,32 +151,26 @@ async function load() {
 
       return `
       <tr class="border-t">
-        <td class="p-2 ${borderClass}">${acc.bank_name}</td>
-        <td class="p-2">${acc.account_name}</td>
-        <td class="p-2 text-right border-r-2">${fmtUSD(acc.networth_usd)}</td>
+        <td class="text-left ${borderClass}">${acc.bank_name}</td>
+        <td class="text-left">${acc.account_name}</td>
+        <td class="border-r-2">${fmtUSD(acc.networth_usd)}</td>
 
-        <td class="p-2 text-right bg-blue-50">${fmtUSD(
-          num(acc.breakdown?.cash)
-        )}</td>
-        <td class="p-2 text-right bg-blue-50">${fmtUSD(
-          num(acc.breakdown?.saving)
-        )}</td>
-        <td class="p-2 text-right bg-blue-50">${fmtUSD(
-          num(acc.breakdown?.bond)
-        )}</td>
-        <td class="p-2 text-right bg-blue-50 border-r-2 border-gray-300">${fmtUSD(
+        <td class="bg-blue-50">${fmtUSD(num(acc.breakdown?.cash))}</td>
+        <td class="bg-blue-50">${fmtUSD(num(acc.breakdown?.saving))}</td>
+        <td class="bg-blue-50">${fmtUSD(num(acc.breakdown?.bond))}</td>
+        <td class="bg-blue-50 border-r-2 border-gray-300">${fmtUSD(
           num(acc.breakdown?.stock)
         )}</td>
 
-        <td class="p-2 text-right border-r-2">${fmtKRW(acc.networth_krw)}</td>
+        <td class="border-r-2">${fmtKRW(acc.networth_krw)}</td>
 
-        <td class="p-2 text-right bg-yellow-50">${fmtUSD(invested)}</td>
-        <td class="p-2 text-right bg-yellow-50">${fmtUSD(profit)}</td>
-        <td class="p-2 text-right bg-yellow-50 border-r-2 border-gray-300">${return_pct}%</td>
+        <td class="bg-yellow-50">${fmtUSD(invested)}</td>
+        <td class="bg-yellow-50">${fmtUSD(profit)}</td>
+        <td class="bg-yellow-50 border-r-2 border-gray-300">${return_pct}%</td>
 
-        <td class="p-2 text-right">${fx_effect_html}</td>
-        <td class="p-2 text-right">${fx_return_amt_html}</td>
-        <td class="p-2 text-right">${fx_return_pct_html}</td>
+        <td>${fx_effect_html}</td>
+        <td>${fx_return_amt_html}</td>
+        <td>${fx_return_pct_html}</td>
       </tr>`;
     })
     .join("");
@@ -281,28 +275,22 @@ async function load() {
       }
       return `
       <tr class="border-t">
-        <td class="p-2 ${borderClass}">${acc.bank_name}</td>
-        <td class="p-2">${acc.account_name}</td>
-        <td class="p-2 text-right border-r-2">${fmtKRW(acc.networth_krw)}</td>
+        <td class="text-left ${borderClass}">${acc.bank_name}</td>
+        <td class="text-left">${acc.account_name}</td>
+        <td class="border-r-2">${fmtKRW(acc.networth_krw)}</td>
 
-        <td class="p-2 text-right bg-blue-50">${fmtKRW(
-          num(acc.breakdown?.cash)
-        )}</td>
-        <td class="p-2 text-right bg-blue-50">${fmtKRW(
-          num(acc.breakdown?.saving)
-        )}</td>
-        <td class="p-2 text-right bg-blue-50">${fmtKRW(
-          num(acc.breakdown?.bond)
-        )}</td>
-        <td class="p-2 text-right bg-blue-50 border-r-2">${fmtKRW(
+        <td class="bg-blue-50">${fmtKRW(num(acc.breakdown?.cash))}</td>
+        <td class="bg-blue-50">${fmtKRW(num(acc.breakdown?.saving))}</td>
+        <td class="bg-blue-50">${fmtKRW(num(acc.breakdown?.bond))}</td>
+        <td class="bg-blue-50 border-r-2">${fmtKRW(
           num(acc.breakdown?.stock)
         )}</td>
 
-        <td class="p-2 text-right border-r-2">${fmtUSD(acc.networth_usd)}</td>
+        <td class="border-r-2">${fmtUSD(acc.networth_usd)}</td>
 
-        <td class="p-2 text-right bg-yellow-50">${fmtKRW(invested)}</td>
-        <td class="p-2 text-right bg-yellow-50">${fmtKRW(profit)}</td>
-        <td class="p-2 text-right bg-yellow-50 border-r-2">${return_pct}%</td>
+        <td class="bg-yellow-50">${fmtKRW(invested)}</td>
+        <td class="bg-yellow-50">${fmtKRW(profit)}</td>
+        <td class="bg-yellow-50 border-r-2">${return_pct}%</td>
       </tr>`;
     })
     .join("");
