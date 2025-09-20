@@ -8,6 +8,7 @@ import pytz
 
 # KST timezone
 KST = pytz.timezone("Asia/Seoul")
+PT = pytz.timezone("US/Pacific")
 
 
 def get_kst_now() -> datetime:
@@ -23,6 +24,21 @@ def get_kst_today() -> date:
 def get_kst_yesterday() -> date:
     """Get yesterday's date in KST timezone."""
     return get_kst_today() - timedelta(days=1)
+
+
+def get_pt_now() -> datetime:
+    """Get current datetime in Pacific timezone (PST/PDT)."""
+    return datetime.now(PT)
+
+
+def get_pt_today() -> date:
+    """Get current date in Pacific timezone (PST/PDT)."""
+    return get_pt_now().date()
+
+
+def get_pt_yesterday() -> date:
+    """Get yesterday's date in Pacific timezone (PST/PDT)."""
+    return get_pt_today() - timedelta(days=1)
 
 
 def is_weekend(date_obj: date) -> bool:

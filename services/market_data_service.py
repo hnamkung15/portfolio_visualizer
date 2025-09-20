@@ -6,7 +6,7 @@ import yfinance as yf
 from models.account import AssetType
 from models.price import Price
 from models.tickers import Ticker
-from utils.time_utils import get_kst_yesterday
+from utils.time_utils import get_pt_yesterday
 
 
 def get_current_symbol_type(symbol: str):
@@ -40,7 +40,7 @@ def get_current_symbol_price(symbol: str, db) -> float:
     if symbol.isdigit():
         symbol = f"{symbol}"
 
-    yesterday = get_kst_yesterday()
+    yesterday = get_pt_yesterday()
     price = price_lookup(db, symbol, yesterday)
     if price:
         return price
@@ -123,7 +123,7 @@ def price_lookup(db, symbol: str, date):
         print("[Warning] not_searchable_symbol", symbol, date)
         return None
 
-    yesterday = get_kst_yesterday()
+    yesterday = get_pt_yesterday()
 
     if date > yesterday:
         return None
