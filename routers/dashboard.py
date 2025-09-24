@@ -4,7 +4,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from db import get_db
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi.templating import Jinja2Templates
 
 from models.account import Account, AccountCurrencyType, AccountType, AssetBreakdown
@@ -13,6 +13,8 @@ from services.account_service import (
     get_checking_account_networth,
     get_stock_account_networth,
 )
+from services.portfolio_service import Portfolio
+from utils.time_utils import get_pt_yesterday
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
@@ -29,14 +31,53 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     )
 
 
-# @router.get("/api/download_data")
-# def download_data(db: Session = Depends(get_db)):
-#     print("download_data")
+@router.get("/api/dashboard/rate")
+def generate_dashboard_data(db: Session = Depends(get_db)):
+    # 1) 환율 불러오기
+    url = "https://api.manana.kr/exchange/rate.json"
+    resp = requests.get(url, timeout=5)
+    resp.raise_for_status()
+    data = resp.json()
 
-#     accounts = db.query(Account).order_by(Account.order).all()
-#     for account in accounts:
-#         if account.account_type != AccountType.STOCK:
-#             continue
+    usd_krw = None
+    as_of = None
+    for row in data:
+        name = row.get("name", "")
+        if "USD" in name and "KRW" in name:
+            usd_krw = float(row.get("rate"))
+            as_of = row.get("date")
+            break
+    if usd_krw is None:
+        raise RuntimeError("USD/KRW rate not found")
+    return {
+        "rate": usd_krw,
+        "as_of": as_of or datetime.now().strftime("%Y-%m-%d %H:%M"),
+    }
+
+
+@router.get("/api/dashboard/graph")
+def generate_dashboard_data(db: Session = Depends(get_db)):
+    transactions = (
+        db.query(Transaction)
+        .order_by(Transaction.date.asc(), Transaction.id.asc())
+        .all()
+    )
+
+    start_date = transactions[0].date
+    end_date = get_pt_yesterday()
+    num_days = (end_date - start_date).days + 1
+
+    portfolio = Portfolio(db)
+    tx_idx = 0
+    n = len(transactions)
+
+    for i in range(num_days):
+        current_date = start_date + timedelta(days=i)
+
+        while tx_idx < n and transactions[tx_idx].date == current_date:
+            tx = transactions[tx_idx]
+            portfolio.process_tx(tx, current_date)
+            tx_idx += 1
 
 
 @router.get("/api/dashboard")

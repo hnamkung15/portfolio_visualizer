@@ -10,8 +10,7 @@ from datetime import datetime, timedelta
 
 from services.market_data_service import price_lookup
 from services.plot_service import graphs
-from services.portfolio_service import Portfolio
-from utils.time_utils import get_pt_yesterday, is_weekend
+from services.portfolio_service import Portfolio, build_portfolio_timeseries
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
@@ -47,77 +46,18 @@ def view_transactions(
 
             portfolio = Portfolio(db)
 
-            timestamps = []
+            result = build_portfolio_timeseries(transactions, portfolio)
 
-            cash = []
-            invest = []
-            valuation = []
-            returns = []
-
-            capital_gain = []
-            interest_income = []
-            dividend_income = []
-            total_income = []
-
-            start_date = transactions[0].date
-            end_date = get_pt_yesterday()
-            num_days = (end_date - start_date).days + 1
-
-            tx_idx = 0
-            n = len(transactions)
-
-            for i in range(num_days):
-                current_date = start_date + timedelta(days=i)
-
-                while tx_idx < n and transactions[tx_idx].date == current_date:
-                    tx = transactions[tx_idx]
-                    if tx.type in [TransactionType.DEPOSIT, TransactionType.FX_DEPOSIT]:
-                        portfolio.deposit(tx.amount)
-                    elif tx.type in [
-                        TransactionType.WITHDRAWAL,
-                        TransactionType.FX_WITHDRAWAL,
-                    ]:
-                        portfolio.withdraw(tx.amount)
-                    elif tx.type == TransactionType.BUY:
-                        portfolio.buy(tx.amount, tx.symbol, tx.quantity, tx.price)
-                    elif tx.type == TransactionType.SELL:
-                        portfolio.sell(tx.amount, tx.symbol, tx.quantity, tx.price)
-                    elif tx.type == TransactionType.TAX_FEE:
-                        portfolio.process_tax_fee(tx.amount)
-                    elif tx.type == TransactionType.INTEREST:
-                        portfolio.process_interest(tx.amount)
-                    elif tx.type == TransactionType.DIVIDEND:
-                        portfolio.process_dividend(tx.amount, tx.symbol, current_date)
-                    elif tx.type == TransactionType.VESTING:
-                        portfolio.process_vesting(
-                            tx.amount, tx.symbol, tx.quantity, tx.price
-                        )
-
-                    tx_idx += 1
-
-                if is_weekend(current_date):
-                    continue
-
-                timestamps.append(current_date.strftime("%Y-%m-%d"))
-
-                inv = float(portfolio.invest)
-                val = portfolio.process_valuation(current_date)
-
-                if inv == 0:
-                    date_return = 0
-                else:
-                    date_return = (val - inv) / inv * 100
-                cash.append(portfolio.cash)
-                invest.append(inv)
-                valuation.append(val)
-                returns.append(date_return)
-
-                capital_gain.append(portfolio.capital_gain)
-                interest_income.append(portfolio.interest)
-                dividend_income.append(portfolio.dividend)
-                total_income.append(
-                    portfolio.capital_gain + portfolio.interest + portfolio.dividend
-                )
+            timestamps = result.timestamps
+            cash = result.cash
+            invest = result.invest
+            valuation = result.valuation
+            returns_pct = result.returns_pct
+            capital_gain = result.capital_gain
+            interest_income = result.interest_income
+            dividend_income = result.dividend_income
+            total_income = result.total_income
+            end_date = result.end_date
 
             fig_1, fig_2, fig_3, fig_4 = graphs(
                 selected_account.account_currency_type,
@@ -125,7 +65,7 @@ def view_transactions(
                 cash,
                 invest,
                 valuation,
-                returns,
+                returns_pct,
                 capital_gain,
                 interest_income,
                 dividend_income,
