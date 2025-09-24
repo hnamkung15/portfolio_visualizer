@@ -20,7 +20,7 @@ templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
 
-def generate_portfolio_tabular_data(db, portfolio, end_date):
+def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
     portfolio_list = []
     portfolio_totals = {}
     symbols = list(portfolio.holdings.keys())
@@ -53,15 +53,36 @@ def generate_portfolio_tabular_data(db, portfolio, end_date):
                 "current_price": current_price,
                 "invested": invested,
                 "valuation": valuation,
-                "returns_amount": returns_amount,  # 평가수익
+                "returns_amount": returns_amount,
                 "returns_pct": returns_pct,
                 "realized_gain": realized_gain,
-                "dividend_total": dividend_total,  # 총 배당금
+                "dividend_total": dividend_total,
                 "dividend_pct": dividend_pct,
-                "total_profit": total_profit,  # 총 수익
+                "total_profit": total_profit,
                 "total_profit_pct": total_profit_pct,
             }
         )
+    portfolio_list.sort(key=lambda s: s["valuation"], reverse=True)
+
+    portfolio_list.append(
+        {
+            "symbol": "cash",
+            "name": "현금",
+            "quantity": 1,
+            "avg_price": float(portfolio.cash),
+            "current_price": float(portfolio.cash),
+            "invested": 0,
+            "valuation": float(portfolio.cash),
+            "returns_amount": 0,
+            "returns_pct": 0,
+            "realized_gain": 0,
+            "dividend_total": 0,
+            "dividend_pct": 0,
+            "total_profit": 0,
+            "total_profit_pct": 0,
+        }
+    )
+
     portfolio_totals = {
         "invested": sum(s["invested"] for s in portfolio_list),
         "valuation": sum(s["valuation"] for s in portfolio_list),
@@ -95,7 +116,6 @@ def generate_portfolio_tabular_data(db, portfolio, end_date):
             if portfolio_totals["valuation"] > 0
             else 0
         )
-    portfolio_list.sort(key=lambda s: s["valuation"], reverse=True)
 
     return portfolio_list, portfolio_totals
 
@@ -140,6 +160,7 @@ def view_transactions(
 
         portfolio = Portfolio(db)
         result = build_portfolio_timeseries(transactions, portfolio)
+        print("portfolio.cash:", portfolio.cash)
 
         graph_funcs = [
             total_valuation_and_invest_graph,
