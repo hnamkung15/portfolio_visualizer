@@ -4,12 +4,16 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from db import get_db
 from models.tickers import Ticker
-from models.transactions import Transaction, TransactionType
+from models.transactions import Transaction
 from models.account import Account, AccountType
-from datetime import datetime, timedelta
 
 from services.market_data_service import price_lookup
-from services.plot_service import graphs
+from services.plot_service import (
+    realized_gain_graph,
+    return_pct_graph,
+    total_capital_and_cash_graph,
+    total_valuation_and_invest_graph,
+)
 from services.portfolio_service import Portfolio, build_portfolio_timeseries
 
 templates = Jinja2Templates(directory="templates")
@@ -48,34 +52,18 @@ def view_transactions(
 
             result = build_portfolio_timeseries(transactions, portfolio)
 
-            timestamps = result.timestamps
-            cash = result.cash
-            invest = result.invest
-            valuation = result.valuation
-            returns_pct = result.returns_pct
-            capital_gain = result.capital_gain
-            interest_income = result.interest_income
-            dividend_income = result.dividend_income
-            total_income = result.total_income
-            end_date = result.end_date
-
-            fig_1, fig_2, fig_3, fig_4 = graphs(
-                selected_account.account_currency_type,
-                timestamps,
-                cash,
-                invest,
-                valuation,
-                returns_pct,
-                capital_gain,
-                interest_income,
-                dividend_income,
-                total_income,
-            )
-
-            graph_html_1 = fig_1.to_html(full_html=False)
-            graph_html_2 = fig_2.to_html(full_html=False)
-            graph_html_3 = fig_3.to_html(full_html=False)
-            graph_html_4 = fig_4.to_html(full_html=False)
+            graph_html_1 = total_valuation_and_invest_graph(
+                selected_account.account_currency_type, result
+            ).to_html(full_html=False)
+            graph_html_2 = return_pct_graph(
+                selected_account.account_currency_type, result
+            ).to_html(full_html=False)
+            graph_html_3 = realized_gain_graph(
+                selected_account.account_currency_type, result
+            ).to_html(full_html=False)
+            graph_html_4 = total_capital_and_cash_graph(
+                selected_account.account_currency_type, result
+            ).to_html(full_html=False)
 
             symbols = [s for s, h in portfolio.holdings.items()]
             ticker_map = {
@@ -84,7 +72,9 @@ def view_transactions(
             }
 
             for symbol, h in portfolio.holdings.items():
-                current_price = price_lookup(db, symbol, end_date) or h["avg_cost"]
+                current_price = (
+                    price_lookup(db, symbol, result.end_date) or h["avg_cost"]
+                )
                 valuation = float(current_price) * float(h["quantity"])
                 invested = float(h["avg_cost"] * h["quantity"])
                 returns_amount = valuation - invested
