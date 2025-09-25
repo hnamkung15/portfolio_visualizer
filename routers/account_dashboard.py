@@ -10,6 +10,7 @@ from models.account import Account, AccountType
 from services.market_data_service import price_lookup
 from services.plot_service import (
     realized_gain_graph,
+    return_graph,
     return_pct_graph,
     total_capital_and_cash_graph,
     total_valuation_and_invest_graph,
@@ -136,10 +137,7 @@ def view_transactions(
                 "active": "account_dashboard",
                 "transactions": [],
                 "selected_account": None,
-                "graph_html_1": "",
-                "graph_html_2": "",
-                "graph_html_3": "",
-                "graph_html_4": "",
+                "graphs_html": [],
                 "portfolio_list": [],
                 "portfolio_totals": {},
             },
@@ -163,8 +161,9 @@ def view_transactions(
         print("portfolio.cash:", portfolio.cash)
 
         graph_funcs = [
-            total_valuation_and_invest_graph,
+            return_graph,
             return_pct_graph,
+            total_valuation_and_invest_graph,
             realized_gain_graph,
             total_capital_and_cash_graph,
         ]
@@ -189,10 +188,7 @@ def view_transactions(
             "active": "account_dashboard",
             "transactions": transactions,
             "selected_account": selected_account,
-            "graph_html_1": graphs_html[0],
-            "graph_html_2": graphs_html[1],
-            "graph_html_3": graphs_html[2],
-            "graph_html_4": graphs_html[3],
+            "graphs_html": graphs_html,
             "portfolio_list": portfolio_list,
             "portfolio_totals": portfolio_totals,
         },

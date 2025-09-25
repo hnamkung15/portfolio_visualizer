@@ -54,8 +54,123 @@ def default_layout(title, xaxis_title, yaxis_title, yaxis_tickformat):
 
 
 # ===============================
+# 색상 팔레트
+# ===============================
+COLORS = {
+    "blue": "#1f77b4",
+    "orange": "#ff7f0e",
+    "green": "#2ca02c",
+    "red": "#d62728",
+    "purple": "#9467bd",
+    "brown": "#8c564b",
+    "gray": "#7f7f7f",
+    "pastel_blue": "#4e79a7",
+    "pastel_orange": "#f28e2b",
+    "pastel_green": "#59a14f",
+    "pastel_red": "#e15759",
+    "pastel_purple": "#af7aa1",
+    "pastel_yellow": "#edc948",
+    "pastel_gray": "#bab0ab",
+    "deep_blue": "#0052cc",
+    "bright_orange": "#ff6f00",
+    "lime_green": "#00c853",
+    "crimson": "#c62828",
+    "violet": "#8e24aa",
+    "cyan": "#00acc1",
+    "gold": "#fdd835",
+}
+
+
+# ===============================
 # 개별 그래프
 # ===============================
+def return_graph(account_currency_type, data: PortfolioTimeSeries):
+    d = preprocess_data(account_currency_type, data)
+
+    if account_currency_type == AccountCurrencyType.USD:
+        yaxis_title, yaxis_tickformat = "금액 ($)", "~s"
+    else:
+        yaxis_title, yaxis_tickformat = "금액 (만원)", "d"
+
+    profit = [v - i for v, i in zip(d["valuation"], d["invest"])]
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=d["timestamps"],
+            y=(profit),
+            mode="lines",
+            name="평가 수익",
+            stackgroup="A",
+            line=dict(color=COLORS["pastel_green"], width=3),
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=d["timestamps"],
+            y=(d["total_income"]),
+            mode="lines",
+            name="확정 소득",
+            stackgroup="A",
+            line=dict(color=COLORS["pastel_orange"], width=3),
+        )
+    )
+
+    fig.update_xaxes(tickformat="%Y-%m-%d")
+    fig.update_layout(
+        **default_layout(
+            "총 수익 = 평가 수익 + 확정 소득 (청산 이익 + 이자 + 배당금)",
+            "날짜",
+            yaxis_title,
+            yaxis_tickformat,
+        )
+    )
+    fig.add_hline(
+        y=0,
+        line=dict(color="black", width=2, dash="dash"),
+        annotation_text="0%",
+        annotation_position="bottom right",
+    )
+    fig.update_yaxes(range=[min(profit) * 1.2, max(profit) * 1.4])
+    return fig
+
+
+def return_pct_graph(account_currency_type, data: PortfolioTimeSeries):
+    d = preprocess_data(account_currency_type, data)
+
+    yaxis_title, yaxis_tickformat = "수익률 (%)", ""
+
+    profit_pct = [
+        (v - i + float(ti)) / i * 100
+        for v, i, ti in zip(d["valuation"], d["invest"], d["total_income"])
+    ]
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=d["timestamps"],
+            y=profit_pct,
+            mode="lines",
+            name="수익률 (%)",
+            line=dict(color=COLORS["pastel_yellow"], width=3),
+        )
+    )
+    fig.update_xaxes(tickformat="%Y-%m-%d")
+    fig.update_layout(
+        **default_layout(
+            "수익률 (%) = 총 수익 / 투자금", "날짜", yaxis_title, yaxis_tickformat
+        )
+    )
+    fig.add_hline(
+        y=0,
+        line=dict(color="black", width=2, dash="dash"),
+        annotation_text="0%",
+        annotation_position="bottom right",
+    )
+    fig.update_yaxes(range=[min(profit_pct) * 1.2, max(profit_pct) * 1.4])
+    return fig
+
+
 def total_valuation_and_invest_graph(account_currency_type, data: PortfolioTimeSeries):
     d = preprocess_data(account_currency_type, data)
 
@@ -65,6 +180,10 @@ def total_valuation_and_invest_graph(account_currency_type, data: PortfolioTimeS
         yaxis_title, yaxis_tickformat = "금액 (만원)", "d"
 
     fig = go.Figure()
+    # total_vaulation = [
+    #     v + float(ti) for v, ti in zip(d["valuation"], d["total_income"])
+    # ]
+
     fig.add_trace(
         go.Scatter(
             x=d["timestamps"],
@@ -72,7 +191,7 @@ def total_valuation_and_invest_graph(account_currency_type, data: PortfolioTimeS
             mode="lines",
             name="투자 금액",
             stackgroup="A",
-            line=dict(color="gray", width=2, dash="dot"),
+            line=dict(color=COLORS["gray"], width=2, dash="dot"),
         )
     )
     fig.add_trace(
@@ -80,44 +199,20 @@ def total_valuation_and_invest_graph(account_currency_type, data: PortfolioTimeS
             x=d["timestamps"],
             y=d["valuation"],
             mode="lines",
-            name="평가 금액",
-            line=dict(color="green", width=3),
+            name="평가금액",
+            line=dict(color=COLORS["pastel_green"], width=3),
         )
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")
     fig.update_layout(
-        **default_layout("총 평가 금액", "날짜", yaxis_title, yaxis_tickformat)
+        **default_layout(
+            "투자 금액과 평가금액",
+            "날짜",
+            yaxis_title,
+            yaxis_tickformat,
+        )
     )
     fig.update_yaxes(range=[0, max(d["valuation"]) * 1.1])
-    return fig
-
-
-def return_pct_graph(account_currency_type, data: PortfolioTimeSeries):
-    d = preprocess_data(account_currency_type, data)
-
-    yaxis_title, yaxis_tickformat = "수익률 (%)", ""
-
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=d["timestamps"],
-            y=d["returns_pct"],
-            mode="lines",
-            name="수익률 (%)",
-            line=dict(color="orange", width=2),
-        )
-    )
-    fig.update_xaxes(tickformat="%Y-%m-%d")
-    fig.update_layout(
-        **default_layout("수익률 변화 (%)", "날짜", yaxis_title, yaxis_tickformat)
-    )
-    fig.add_hline(
-        y=0,
-        line=dict(color="black", width=1, dash="dash"),
-        annotation_text="0%",
-        annotation_position="bottom right",
-    )
-    fig.update_yaxes(range=[min(d["returns_pct"]) * 1.2, max(d["returns_pct"]) * 1.2])
     return fig
 
 
@@ -136,7 +231,7 @@ def realized_gain_graph(account_currency_type, data: PortfolioTimeSeries):
             y=d["capital_gain"],
             mode="lines",
             name="청산이익",
-            line=dict(color="red"),
+            line=dict(color=COLORS["pastel_green"], width=3),
         )
     )
     fig.add_trace(
@@ -145,7 +240,7 @@ def realized_gain_graph(account_currency_type, data: PortfolioTimeSeries):
             y=d["interest_income"],
             mode="lines",
             name="이자 소득",
-            line=dict(color="blue"),
+            line=dict(color=COLORS["cyan"], width=3),
         )
     )
     fig.add_trace(
@@ -154,7 +249,7 @@ def realized_gain_graph(account_currency_type, data: PortfolioTimeSeries):
             y=d["dividend_income"],
             mode="lines",
             name="배당 소득",
-            line=dict(color="green"),
+            line=dict(color=COLORS["purple"], width=3),
         )
     )
     fig.add_trace(
@@ -164,7 +259,7 @@ def realized_gain_graph(account_currency_type, data: PortfolioTimeSeries):
             mode="lines",
             name="총 확정 소득",
             stackgroup="A",
-            line=dict(color="black", width=1, dash="dot"),
+            line=dict(color=COLORS["pastel_orange"], width=3, dash="dot"),
         )
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")
@@ -205,7 +300,9 @@ def total_capital_and_cash_graph(account_currency_type, data: PortfolioTimeSerie
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")
     fig.update_layout(
-        **default_layout("총 자산", "날짜", yaxis_title, yaxis_tickformat)
+        **default_layout(
+            "총 자산 = 평가 금액 + 현금", "날짜", yaxis_title, yaxis_tickformat
+        )
     )
     total_assets = [float(c) + float(v) for c, v in zip(d["cash"], d["valuation"])]
     fig.update_yaxes(range=[0, max(total_assets) * 1.1])

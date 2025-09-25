@@ -95,18 +95,11 @@
     그래프
     <!-- <button id="recompute-btn" class="btn btn-indigo">Recompute Graph Result</button> -->
   </h2>
-  <div class="w-[800px] card">
-    <div>{{ graph_html_1|safe }}</div>
-  </div>
-  <div class="w-[800px] card">
-    <div>{{ graph_html_2|safe }}</div>
-  </div>
-  <div class="w-[800px] card">
-    <div>{{ graph_html_3|safe }}</div>
-  </div>
-  <div class="w-[800px] card">
-    <div>{{ graph_html_4|safe }}</div>
-  </div>
+  {% for graph in graphs_html %}
+    <div class="w-[800px] card">
+      <div>{{ graph|safe }}</div>
+    </div>
+  {% endfor %}
 </div>
 {% else %}
 <p class="message">주식 계좌가 아닙니다. 주식 계좌를 선택해주세요.</p>
