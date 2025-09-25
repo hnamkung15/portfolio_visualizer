@@ -93,6 +93,10 @@ def return_graph(account_currency_type, data: PortfolioTimeSeries):
         yaxis_title, yaxis_tickformat = "금액 (만원)", "d"
 
     profit = [v - i for v, i in zip(d["valuation"], d["invest"])]
+    total_profit = [
+        v - i + float(ti)
+        for v, i, ti in zip(d["valuation"], d["invest"], d["total_income"])
+    ]
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
@@ -131,7 +135,7 @@ def return_graph(account_currency_type, data: PortfolioTimeSeries):
         annotation_text="0%",
         annotation_position="bottom right",
     )
-    fig.update_yaxes(range=[min(profit) * 1.2, max(profit) * 1.4])
+    fig.update_yaxes(range=[min(profit) * 1.2, max(total_profit) * 1.4])
     return fig
 
 
@@ -141,7 +145,7 @@ def return_pct_graph(account_currency_type, data: PortfolioTimeSeries):
     yaxis_title, yaxis_tickformat = "수익률 (%)", ""
 
     profit_pct = [
-        (v - i + float(ti)) / i * 100
+        ((v - i + float(ti)) / i * 100) if i != 0 else 0
         for v, i, ti in zip(d["valuation"], d["invest"], d["total_income"])
     ]
 

@@ -13,6 +13,24 @@
 {% if selected_account.account_type.value == "Stock" %}
   {% set currency_symbol = "$" if selected_account.account_currency_type == "USD" else "₩" %}
   {% set num_format = "{:,.2f}" if selected_account.account_currency_type == "USD" else "{:,.0f}" %}
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="card-dashboard">
+      <div class="card-label">총 자산</div>
+      <div class="card-value">{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</div>
+    </div>
+    <div class="card-dashboard">
+      <div class="card-label">총 수익</div>
+      <div class="card-value">{{ currency_symbol }}{{ num_format.format(portfolio_totals.total_profit) }}</div>
+    </div>
+    <div class="card-dashboard">
+      <div class="card-label">수익율</div>
+      <div class="card-value">{{ "{:.2f}".format(portfolio_totals.total_profit_pct) }} %</div>
+    </div>
+    <div class="card-dashboard">
+      <div class="card-label">현금</div>
+      <div class="card-value">{{ currency_symbol }}{{ num_format.format(cash) }}</div>
+    </div>
+  </div>
   <div class="card">
     <h2 class="section-title">포트폴리오 현황</h2>
     <table class="table-general">

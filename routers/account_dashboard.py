@@ -191,5 +191,6 @@ def view_transactions(
             "graphs_html": graphs_html,
             "portfolio_list": portfolio_list,
             "portfolio_totals": portfolio_totals,
+            "cash": portfolio.cash,
         },
     )
