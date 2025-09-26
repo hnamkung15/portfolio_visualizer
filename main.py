@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from models.base import Base
 from db import engine
 from routers import account_dashboard, account_setting, dashboard, transactions
@@ -19,13 +19,7 @@ templates = Jinja2Templates(directory="templates")
 # 기본 홈
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
-    return templates.TemplateResponse(
-        "dashboard/dashboard.html",
-        {
-            "request": request,
-            "active": "dashboard",
-        },
-    )
+    return RedirectResponse(url="/dashboard")
 
 
 app.include_router(dashboard.router)
