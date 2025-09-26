@@ -15,7 +15,7 @@ class PortfolioTimeSeries:
     cash: List[float]
     invest: List[float]
     valuation: List[float]
-    returns_pct: List[float]
+    return_pct: List[float]
     capital_gain: List[float]
     interest_income: List[float]
     dividend_income: List[float]
@@ -150,7 +150,7 @@ def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
     cash = []
     invest = []
     valuation = []
-    returns_pct = []
+    return_pct = []
     capital_gain = []
     interest_income = []
     dividend_income = []
@@ -186,7 +186,7 @@ def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
         cash.append(portfolio.cash)
         invest.append(inv)
         valuation.append(val)
-        returns_pct.append(date_return)
+        return_pct.append(date_return)
 
         capital_gain.append(portfolio.capital_gain)
         interest_income.append(portfolio.interest)
@@ -199,7 +199,7 @@ def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
         cash=cash,
         invest=invest,
         valuation=valuation,
-        returns_pct=returns_pct,
+        return_pct=return_pct,
         capital_gain=capital_gain,
         interest_income=interest_income,
         dividend_income=dividend_income,
@@ -218,18 +218,20 @@ def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
     }
 
     for symbol, h in portfolio.holdings.items():
-        current_price = price_lookup(db, symbol, end_date) or h["avg_cost"]
-        valuation = float(current_price) * float(h["quantity"])
-        invested = float(h["avg_cost"] * h["quantity"])
-        returns_amount = valuation - invested
-        returns_pct = (returns_amount / invested * 100) if invested > 0 else 0
+        current_price = float(price_lookup(db, symbol, end_date) or h["avg_cost"])
+        avg_price = float(h["avg_cost"])
+        quantity = float(h["quantity"])
+        valuation = current_price * quantity
+        invested = avg_price * quantity
+        return_amount = valuation - invested
+        return_pct = (return_amount / invested * 100) if invested > 0 else 0
 
         realized_gain = float(h.get("realized_gain", 0))
 
         dividend_total = float(h["dividend_total"])
         dividend_pct = (dividend_total / invested * 100) if invested > 0 else 0
 
-        total_profit = returns_amount + dividend_total + realized_gain
+        total_profit = return_amount + dividend_total + realized_gain
         total_profit_pct = (total_profit / invested * 100) if invested > 0 else 0
 
         portfolio_list.append(
@@ -241,8 +243,8 @@ def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
                 "current_price": current_price,
                 "invested": invested,
                 "valuation": valuation,
-                "returns_amount": returns_amount,
-                "returns_pct": returns_pct,
+                "return_amount": return_amount,
+                "return_pct": return_pct,
                 "realized_gain": realized_gain,
                 "dividend_total": dividend_total,
                 "dividend_pct": dividend_pct,
@@ -261,12 +263,12 @@ def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
             "current_price": float(portfolio.cash),
             "invested": 0,
             "valuation": float(portfolio.cash),
-            "returns_amount": 0,
-            "returns_pct": 0,
-            "realized_gain": 0,
+            "return_amount": 0,
+            "return_pct": 0,
+            "realized_gain": float(portfolio.interest) - float(portfolio.tax_fee),
             "dividend_total": 0,
             "dividend_pct": 0,
-            "total_profit": 0,
+            "total_profit": float(portfolio.interest) - float(portfolio.tax_fee),
             "total_profit_pct": 0,
         }
     )
@@ -274,17 +276,17 @@ def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
     portfolio_totals = {
         "invested": sum(s["invested"] for s in portfolio_list),
         "valuation": sum(s["valuation"] for s in portfolio_list),
-        "returns_amount": sum(s["returns_amount"] for s in portfolio_list),
+        "return_amount": sum(s["return_amount"] for s in portfolio_list),
         "dividend_total": sum(s["dividend_total"] for s in portfolio_list),
         "realized_gain": sum(s["realized_gain"] for s in portfolio_list),
     }
     portfolio_totals["total_profit"] = (
-        portfolio_totals["returns_amount"]
+        portfolio_totals["return_amount"]
         + portfolio_totals["realized_gain"]
         + portfolio_totals["dividend_total"]
     )
-    portfolio_totals["returns_pct"] = (
-        portfolio_totals["returns_amount"] / portfolio_totals["invested"] * 100
+    portfolio_totals["return_pct"] = (
+        portfolio_totals["return_amount"] / portfolio_totals["invested"] * 100
         if portfolio_totals["invested"] > 0
         else 0
     )

@@ -38,7 +38,7 @@
                     <td>{{ currency_symbol }}{{ num_format.format(stock.current_price) }}</td>
                     <td>{{ currency_symbol }}{{ num_format.format(stock.valuation) }}</td>
                     <td>{{ "{:.2f}".format(stock.valuation_pct) }}%</td>
-                    {{ profit_cell_with_pct(stock.returns_amount, currency_symbol, num_format, stock.returns_pct) }}
+                    {{ profit_cell_with_pct(stock.return_amount, currency_symbol, num_format, stock.return_pct) }}
                     {{ profit_cell(stock.realized_gain, currency_symbol, num_format) }}
                     {{ profit_cell(stock.dividend_total, currency_symbol, num_format) }}
                     {{ profit_cell_with_pct(stock.total_profit, currency_symbol, num_format, stock.total_profit_pct) }}
@@ -52,7 +52,7 @@
                 <td colspan="3">-</td>
                 <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</td>
                 <td>-</td>
-                {{ profit_cell_with_pct(portfolio_totals.returns_amount, currency_symbol, num_format, portfolio_totals.returns_pct) }}
+                {{ profit_cell_with_pct(portfolio_totals.return_amount, currency_symbol, num_format, portfolio_totals.return_pct) }}
                 {{ profit_cell(portfolio_totals.realized_gain, currency_symbol, num_format) }}
                 {{ profit_cell(portfolio_totals.dividend_total, currency_symbol, num_format) }}
                 {{ profit_cell_with_pct(portfolio_totals.total_profit, currency_symbol, num_format, portfolio_totals.total_profit_pct) }}

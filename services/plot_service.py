@@ -23,7 +23,7 @@ def preprocess_data(account_currency_type, data: PortfolioTimeSeries):
         "interest_income": convert(data.interest_income),
         "dividend_income": convert(data.dividend_income),
         "total_income": convert(data.total_income),
-        "returns_pct": getattr(data, "returns_pct", None),
+        "return_pct": getattr(data, "return_pct", None),
     }
 
 
