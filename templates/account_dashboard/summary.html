@@ -10,9 +10,9 @@
   </td>
 {% endmacro %}
 <h2 class="section-title">{{ selected_account.account_name }}</h2>
+{% set currency_symbol = "$" if selected_account.account_currency_type == "USD" else "₩" %}
+{% set num_format = "{:,.2f}" if selected_account.account_currency_type == "USD" else "{:,.0f}" %}
 {% if selected_account.account_type.value == "Stock" %}
-  {% set currency_symbol = "$" if selected_account.account_currency_type == "USD" else "₩" %}
-  {% set num_format = "{:,.2f}" if selected_account.account_currency_type == "USD" else "{:,.0f}" %}
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <div class="card-dashboard">
       <div class="card-label">총 자산</div>
@@ -108,6 +108,18 @@
     </tbody>
   </table>
 </div>
+{% else %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <div class="card-dashboard">
+    <div class="card-label">총 자산</div>
+    <div class="card-value">{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</div>
+  </div>
+  <div class="card-dashboard">
+    <div class="card-label">총 수익</div>
+    <div class="card-value">{{ currency_symbol }}{{ num_format.format(interest) }}</div>
+  </div>
+</div>
+{% endif %}
 <div class="card">
   <h2 class="section-title flex-between">
     그래프
@@ -119,6 +131,3 @@
     </div>
   {% endfor %}
 </div>
-{% else %}
-<p class="message">주식 계좌가 아닙니다. 주식 계좌를 선택해주세요.</p>
-{% endif %}

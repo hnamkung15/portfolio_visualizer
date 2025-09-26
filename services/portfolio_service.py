@@ -94,6 +94,7 @@ class Portfolio:
         self.interest = 0
         self.dividend = 0
         self.tax_fee = 0
+        self.snapshot = defaultdict(float)
 
         self.holdings = defaultdict(
             lambda: {
@@ -125,16 +126,18 @@ class Portfolio:
             self.process_dividend(tx.amount, tx.symbol, current_date)
         elif tx.type == TransactionType.VESTING:
             self.process_vesting(tx.amount, tx.symbol, tx.quantity, tx.price)
+        elif tx.type == TransactionType.BALANCE_SNAPSHOT:
+            self.process_balance_snapshot(tx.account_id, tx.amount)
 
     def deposit(self, amount):
-        self.cash += amount
+        self.cash += float(amount)
 
     def withdraw(self, amount):
-        self.cash -= amount
+        self.cash -= float(amount)
 
     def buy(self, amount, symbol, quantity, price):
         cost = quantity * price
-        self.cash -= amount
+        self.cash -= float(amount)
 
         h = self.holdings[symbol]
         total_cost = h["avg_cost"] * h["quantity"] + cost
@@ -150,7 +153,7 @@ class Portfolio:
 
         revenue = quantity * price
         cost_basis = h["avg_cost"] * quantity
-        self.cash += revenue
+        self.cash += float(revenue)
         h["quantity"] -= quantity
 
         realized = revenue - cost_basis
@@ -160,15 +163,15 @@ class Portfolio:
         self.invest -= cost_basis
 
     def process_tax_fee(self, amount):
-        self.cash -= amount
+        self.cash -= float(amount)
         self.tax_fee += amount
 
     def process_interest(self, amount):
-        self.cash += amount
+        self.cash += float(amount)
         self.interest += amount
 
     def process_dividend(self, amount, symbol, date):
-        self.cash += amount
+        self.cash += float(amount)
         self.dividend += amount
 
         h = self.holdings[symbol]
@@ -197,6 +200,11 @@ class Portfolio:
                 # print("[portfolio_service], price NOT found", date, symbol)
                 valuation += float(h["quantity"]) * float(h["avg_cost"])
         return valuation
+
+    def process_balance_snapshot(self, account_id, amount):
+        self.cash -= float(self.snapshot[account_id])
+        self.cash += float(amount)
+        self.snapshot[account_id] = float(amount)
 
     def print_holdings(self):
         print("=== Portfolio Holdings ===")

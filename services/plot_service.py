@@ -311,3 +311,43 @@ def total_capital_and_cash_graph(account_currency_type, data: PortfolioTimeSerie
     total_assets = [float(c) + float(v) for c, v in zip(d["cash"], d["valuation"])]
     fig.update_yaxes(range=[0, max(total_assets) * 1.1])
     return fig
+
+
+def cash_and_interest_graph(account_currency_type, data: PortfolioTimeSeries):
+    d = preprocess_data(account_currency_type, data)
+
+    if account_currency_type == AccountCurrencyType.USD:
+        yaxis_title, yaxis_tickformat = "금액 ($)", "~s"
+    else:
+        yaxis_title, yaxis_tickformat = "금액 (만원)", "d"
+
+    cash_minus_interest = [
+        float(c) - float(ti) for c, ti in zip(d["cash"], d["total_income"])
+    ]
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=d["timestamps"],
+            y=cash_minus_interest,
+            mode="lines",
+            name="현금",
+            stackgroup="A",
+            line=dict(color="blue"),
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=d["timestamps"],
+            y=d["total_income"],
+            mode="lines",
+            name="이자 수익",
+            stackgroup="A",
+            line=dict(color=COLORS["cyan"], width=3),
+        )
+    )
+    fig.update_xaxes(tickformat="%Y-%m-%d")
+    fig.update_layout(
+        **default_layout("현금 이자수익", "날짜", yaxis_title, yaxis_tickformat)
+    )
+    fig.update_yaxes(range=[0, max(d["cash"]) * 1.1])
+    return fig

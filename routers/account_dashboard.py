@@ -9,6 +9,7 @@ from models.account import Account, AccountType
 
 from services.market_data_service import price_lookup
 from services.plot_service import (
+    cash_and_interest_graph,
     realized_gain_graph,
     return_graph,
     return_pct_graph,
@@ -155,11 +156,6 @@ def view_transactions(
     )
 
     if selected_account.account_type == AccountType.STOCK:
-
-        portfolio = Portfolio(db)
-        result = build_portfolio_timeseries(transactions, portfolio)
-        print("portfolio.cash:", portfolio.cash)
-
         graph_funcs = [
             return_graph,
             return_pct_graph,
@@ -167,16 +163,22 @@ def view_transactions(
             realized_gain_graph,
             total_capital_and_cash_graph,
         ]
-
-        graphs_html = [
-            func(selected_account.account_currency_type, result).to_html(
-                full_html=False
-            )
-            for func in graph_funcs
+    else:
+        graph_funcs = [
+            cash_and_interest_graph,
         ]
-        portfolio_list, portfolio_totals = generate_portfolio_tabular_data(
-            db, portfolio, result.end_date
-        )
+
+    portfolio = Portfolio(db)
+    result = build_portfolio_timeseries(transactions, portfolio)
+    print("portfolio.cash:", portfolio.cash)
+
+    graphs_html = [
+        func(selected_account.account_currency_type, result).to_html(full_html=False)
+        for func in graph_funcs
+    ]
+    portfolio_list, portfolio_totals = generate_portfolio_tabular_data(
+        db, portfolio, result.end_date
+    )
 
     transactions.sort(key=lambda t: (t.date, t.id), reverse=True)
 
@@ -192,5 +194,6 @@ def view_transactions(
             "portfolio_list": portfolio_list,
             "portfolio_totals": portfolio_totals,
             "cash": portfolio.cash,
+            "interest": portfolio.interest,
         },
     )
