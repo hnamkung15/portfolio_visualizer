@@ -6,6 +6,7 @@ from typing import List
 from models.transactions import TransactionType
 from services.market_data_service import price_lookup
 from utils.time_utils import get_pt_yesterday, is_weekend
+from models.tickers import Ticker
 
 
 @dataclass
@@ -20,69 +21,6 @@ class PortfolioTimeSeries:
     dividend_income: List[float]
     total_income: List[float]
     end_date: date
-
-
-def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
-    timestamps = []
-    cash = []
-    invest = []
-    valuation = []
-    returns_pct = []
-    capital_gain = []
-    interest_income = []
-    dividend_income = []
-    total_income = []
-
-    start_date = transactions[0].date
-    end_date = get_pt_yesterday()
-    num_days = (end_date - start_date).days + 1
-
-    tx_idx = 0
-    n = len(transactions)
-
-    for i in range(num_days):
-        current_date = start_date + timedelta(days=i)
-
-        while tx_idx < n and transactions[tx_idx].date == current_date:
-            tx = transactions[tx_idx]
-            portfolio.process_tx(tx, current_date)
-            tx_idx += 1
-
-        if is_weekend(current_date):
-            continue
-
-        timestamps.append(current_date.strftime("%Y-%m-%d"))
-
-        inv = float(portfolio.invest)
-        val = portfolio.process_valuation(current_date)
-
-        if inv == 0:
-            date_return = 0
-        else:
-            date_return = (val - inv) / inv * 100
-        cash.append(portfolio.cash)
-        invest.append(inv)
-        valuation.append(val)
-        returns_pct.append(date_return)
-
-        capital_gain.append(portfolio.capital_gain)
-        interest_income.append(portfolio.interest)
-        dividend_income.append(portfolio.dividend)
-        total_income.append(
-            portfolio.capital_gain + portfolio.interest + portfolio.dividend
-        )
-    return PortfolioTimeSeries(
-        timestamps=timestamps,
-        cash=cash,
-        invest=invest,
-        valuation=valuation,
-        returns_pct=returns_pct,
-        capital_gain=capital_gain,
-        interest_income=interest_income,
-        dividend_income=dividend_income,
-        total_income=total_income,
-        end_date=end_date,
-    )
 
 
 class Portfolio:
@@ -219,3 +157,166 @@ class Portfolio:
                 f"Avg Cost: {h['avg_cost']:.2f}"
             )
         print("==========================")
+
+
+def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
+    timestamps = []
+    cash = []
+    invest = []
+    valuation = []
+    returns_pct = []
+    capital_gain = []
+    interest_income = []
+    dividend_income = []
+    total_income = []
+
+    start_date = transactions[0].date
+    end_date = get_pt_yesterday()
+    num_days = (end_date - start_date).days + 1
+
+    tx_idx = 0
+    n = len(transactions)
+
+    for i in range(num_days):
+        current_date = start_date + timedelta(days=i)
+
+        while tx_idx < n and transactions[tx_idx].date == current_date:
+            tx = transactions[tx_idx]
+            portfolio.process_tx(tx, current_date)
+            tx_idx += 1
+
+        if is_weekend(current_date):
+            continue
+
+        timestamps.append(current_date.strftime("%Y-%m-%d"))
+
+        inv = float(portfolio.invest)
+        val = portfolio.process_valuation(current_date)
+
+        if inv == 0:
+            date_return = 0
+        else:
+            date_return = (val - inv) / inv * 100
+        cash.append(portfolio.cash)
+        invest.append(inv)
+        valuation.append(val)
+        returns_pct.append(date_return)
+
+        capital_gain.append(portfolio.capital_gain)
+        interest_income.append(portfolio.interest)
+        dividend_income.append(portfolio.dividend)
+        total_income.append(
+            portfolio.capital_gain + portfolio.interest + portfolio.dividend
+        )
+    return PortfolioTimeSeries(
+        timestamps=timestamps,
+        cash=cash,
+        invest=invest,
+        valuation=valuation,
+        returns_pct=returns_pct,
+        capital_gain=capital_gain,
+        interest_income=interest_income,
+        dividend_income=dividend_income,
+        total_income=total_income,
+        end_date=end_date,
+    )
+
+
+def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
+    portfolio_list = []
+    portfolio_totals = {}
+    symbols = list(portfolio.holdings.keys())
+    ticker_map = {
+        t.symbol: t.name
+        for t in db.query(Ticker).filter(Ticker.symbol.in_(symbols)).all()
+    }
+
+    for symbol, h in portfolio.holdings.items():
+        current_price = price_lookup(db, symbol, end_date) or h["avg_cost"]
+        valuation = float(current_price) * float(h["quantity"])
+        invested = float(h["avg_cost"] * h["quantity"])
+        returns_amount = valuation - invested
+        returns_pct = (returns_amount / invested * 100) if invested > 0 else 0
+
+        realized_gain = float(h.get("realized_gain", 0))
+
+        dividend_total = float(h["dividend_total"])
+        dividend_pct = (dividend_total / invested * 100) if invested > 0 else 0
+
+        total_profit = returns_amount + dividend_total + realized_gain
+        total_profit_pct = (total_profit / invested * 100) if invested > 0 else 0
+
+        portfolio_list.append(
+            {
+                "symbol": symbol,
+                "name": ticker_map.get(symbol, ""),
+                "quantity": h["quantity"],
+                "avg_price": h["avg_cost"],
+                "current_price": current_price,
+                "invested": invested,
+                "valuation": valuation,
+                "returns_amount": returns_amount,
+                "returns_pct": returns_pct,
+                "realized_gain": realized_gain,
+                "dividend_total": dividend_total,
+                "dividend_pct": dividend_pct,
+                "total_profit": total_profit,
+                "total_profit_pct": total_profit_pct,
+            }
+        )
+    portfolio_list.sort(key=lambda s: s["valuation"], reverse=True)
+
+    portfolio_list.append(
+        {
+            "symbol": "cash",
+            "name": "현금",
+            "quantity": 1,
+            "avg_price": float(portfolio.cash),
+            "current_price": float(portfolio.cash),
+            "invested": 0,
+            "valuation": float(portfolio.cash),
+            "returns_amount": 0,
+            "returns_pct": 0,
+            "realized_gain": 0,
+            "dividend_total": 0,
+            "dividend_pct": 0,
+            "total_profit": 0,
+            "total_profit_pct": 0,
+        }
+    )
+
+    portfolio_totals = {
+        "invested": sum(s["invested"] for s in portfolio_list),
+        "valuation": sum(s["valuation"] for s in portfolio_list),
+        "returns_amount": sum(s["returns_amount"] for s in portfolio_list),
+        "dividend_total": sum(s["dividend_total"] for s in portfolio_list),
+        "realized_gain": sum(s["realized_gain"] for s in portfolio_list),
+    }
+    portfolio_totals["total_profit"] = (
+        portfolio_totals["returns_amount"]
+        + portfolio_totals["realized_gain"]
+        + portfolio_totals["dividend_total"]
+    )
+    portfolio_totals["returns_pct"] = (
+        portfolio_totals["returns_amount"] / portfolio_totals["invested"] * 100
+        if portfolio_totals["invested"] > 0
+        else 0
+    )
+    portfolio_totals["dividend_pct"] = (
+        portfolio_totals["dividend_total"] / portfolio_totals["invested"] * 100
+        if portfolio_totals["invested"] > 0
+        else 0
+    )
+    portfolio_totals["total_profit_pct"] = (
+        portfolio_totals["total_profit"] / portfolio_totals["invested"] * 100
+        if portfolio_totals["invested"] > 0
+        else 0
+    )
+    for stock in portfolio_list:
+        stock["valuation_pct"] = (
+            stock["valuation"] / portfolio_totals["valuation"] * 100
+            if portfolio_totals["valuation"] > 0
+            else 0
+        )
+
+    return portfolio_list, portfolio_totals
