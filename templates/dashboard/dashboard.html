@@ -24,7 +24,7 @@
     <!-- 총 자산 -->
     <div class="card-dashboard">
       <div class="card-label">총 자산</div>
-      <div class="card-value">
+      <div class="card-value total">
         {{ usd_format.format(total_usd) }}
         <br>
         {{ krw_format_macro(total_krw) }}
@@ -33,7 +33,7 @@
     <!-- 자산 in USD -->
     <div class="card-dashboard">
       <div class="card-label">자산 in USD</div>
-      <div class="card-value">
+      <div class="card-value usd">
         {{ usd_format.format(usd_assets.amount_usd) }}
         <br>
         {{ krw_format_macro(usd_assets.amount_krw) }}
@@ -43,7 +43,7 @@
     <!-- 자산 in KRW -->
     <div class="card-dashboard">
       <div class="card-label">자산 in KRW</div>
-      <div class="card-value">
+      <div class="card-value krw">
         {{ usd_format.format(krw_assets.amount_usd) }}
         <br>
         {{ krw_format_macro(krw_assets.amount_krw) }}
