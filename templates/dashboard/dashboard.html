@@ -51,14 +51,14 @@
       <div class="card-subtext">({{ percent_format.format(krw_assets.percent) }})</div>
     </div>
   </div>
-  <div class="card">
+  <!-- <div class="card">
     <h2 class="section-title">Portfolio (USD)</h2>
     {{ portfolio_macros.render_portfolio_table(usd_portfolio_list, usd_portfolio_totals, "$", "{:,.2f}") }}
   </div>
   <div class="card">
     <h2 class="section-title">Portfolio (KRW)</h2>
     {{ portfolio_macros.render_portfolio_table(krw_portfolio_list, krw_portfolio_totals, "₩", "{:,.0f}") }}
-  </div>
+  </div> -->
   <div class="card">
     <h2 class="section-title flex-between">USD 그래프</h2>
     {% for graph in usd_graphs_html %}

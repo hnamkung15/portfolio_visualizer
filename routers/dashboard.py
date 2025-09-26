@@ -13,6 +13,7 @@ from services.account_service import (
     get_checking_account_networth,
     get_stock_account_networth,
 )
+from services.plot.chart_service import pie_chart
 from services.plot.plot_service import (
     realized_gain_graph,
     return_graph,
@@ -117,7 +118,8 @@ def generate_portfolio(db, currency_type):
     )
     result = build_portfolio_timeseries(transactions, portfolio)
     graph_funcs = [
-        total_capital_and_cash_graph,
+        pie_chart,
+        # total_capital_and_cash_graph,
     ]
     graphs_html = [
         func(currency_type, result).to_html(full_html=False) for func in graph_funcs
