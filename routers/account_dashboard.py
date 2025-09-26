@@ -73,7 +73,6 @@ def view_transactions(
 
     portfolio = Portfolio(db)
     result = build_portfolio_timeseries(transactions, portfolio)
-    print("portfolio.cash:", portfolio.cash)
 
     graphs_html = [
         func(selected_account.account_currency_type, result).to_html(full_html=False)

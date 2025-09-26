@@ -13,8 +13,18 @@ from services.account_service import (
     get_checking_account_networth,
     get_stock_account_networth,
 )
-from services.portfolio_service import Portfolio
-from utils.time_utils import get_pt_yesterday
+from services.plot_service import (
+    realized_gain_graph,
+    return_graph,
+    return_pct_graph,
+    total_capital_and_cash_graph,
+    total_valuation_and_invest_graph,
+)
+from services.portfolio_service import (
+    Portfolio,
+    build_portfolio_timeseries,
+    generate_portfolio_tabular_data,
+)
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
@@ -22,11 +32,24 @@ router = APIRouter()
 
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
+    usd_graphs_html, usd_portfolio_list, usd_portfolio_totals = generate_portfolio(
+        db, AccountCurrencyType.USD
+    )
+    krw_graphs_html, krw_portfolio_list, krw_portfolio_totals = generate_portfolio(
+        db, AccountCurrencyType.KRW
+    )
+
     return templates.TemplateResponse(
         "dashboard/dashboard.html",
         {
             "request": request,
             "active": "dashboard",
+            "usd_graphs_html": usd_graphs_html,
+            "usd_portfolio_list": usd_portfolio_list,
+            "usd_portfolio_totals": usd_portfolio_totals,
+            "krw_graphs_html": krw_graphs_html,
+            "krw_portfolio_list": krw_portfolio_list,
+            "krw_portfolio_totals": krw_portfolio_totals,
         },
     )
 
@@ -55,202 +78,213 @@ def generate_dashboard_data(db: Session = Depends(get_db)):
     }
 
 
-@router.get("/api/dashboard/graph")
-def generate_dashboard_data(db: Session = Depends(get_db)):
+def generate_portfolio(db, currency_type):
+    accounts = db.query(Account).order_by(Account.order).all()
+    account_ids = [
+        account.id
+        for account in accounts
+        if account.account_currency_type == currency_type
+    ]
+
+    portfolio = Portfolio(db)
     transactions = (
         db.query(Transaction)
+        .filter(Transaction.account_id.in_(account_ids))
         .order_by(Transaction.date.asc(), Transaction.id.asc())
         .all()
     )
+    result = build_portfolio_timeseries(transactions, portfolio)
+    graph_funcs = [
+        total_capital_and_cash_graph,
+    ]
+    graphs_html = [
+        func(currency_type, result).to_html(full_html=False) for func in graph_funcs
+    ]
+    portfolio_list, portfolio_totals = generate_portfolio_tabular_data(
+        db, portfolio, result.end_date
+    )
 
-    start_date = transactions[0].date
-    end_date = get_pt_yesterday()
-    num_days = (end_date - start_date).days + 1
-
-    portfolio = Portfolio(db)
-    tx_idx = 0
-    n = len(transactions)
-
-    for i in range(num_days):
-        current_date = start_date + timedelta(days=i)
-
-        while tx_idx < n and transactions[tx_idx].date == current_date:
-            tx = transactions[tx_idx]
-            portfolio.process_tx(tx, current_date)
-            tx_idx += 1
+    return graphs_html, portfolio_list, portfolio_totals
 
 
-@router.get("/api/dashboard")
-def generate_dashboard_data(db: Session = Depends(get_db)):
-    # 1) 환율 불러오기
-    url = "https://api.manana.kr/exchange/rate.json"
-    resp = requests.get(url, timeout=5)
-    resp.raise_for_status()
-    data = resp.json()
+# @router.get("/dashboard")
+# def generate_dashboard_data(db: Session = Depends(get_db)):
+#     print("come??")
+#     usd_graphs_html = generate_portfolio(db, AccountCurrencyType.USD)
+#     krw_graphs_html = generate_portfolio(db, AccountCurrencyType.KRW)
+#     return {
+#         "usd_graphs_html": usd_graphs_html,
+#         "krw_graphs_html": krw_graphs_html,
+#     }
+# # 1) 환율 불러오기
+# url = "https://api.manana.kr/exchange/rate.json"
+# resp = requests.get(url, timeout=5)
+# resp.raise_for_status()
+# data = resp.json()
 
-    usd_krw = None
-    as_of = None
-    for row in data:
-        name = row.get("name", "")
-        if "USD" in name and "KRW" in name:
-            usd_krw = float(row.get("rate"))
-            as_of = row.get("date")
-            break
-    if usd_krw is None:
-        raise RuntimeError("USD/KRW rate not found")
+# usd_krw = None
+# as_of = None
+# for row in data:
+#     name = row.get("name", "")
+#     if "USD" in name and "KRW" in name:
+#         usd_krw = float(row.get("rate"))
+#         as_of = row.get("date")
+#         break
+# if usd_krw is None:
+#     raise RuntimeError("USD/KRW rate not found")
 
-    # 2) 총액/리스트 초기화
-    usd_assets_value = 0
-    krw_assets_value = 0
+# # 2) 총액/리스트 초기화
+# usd_assets_value = 0
+# krw_assets_value = 0
 
-    usd_accounts_data = []
-    usd_networths = []
+# usd_accounts_data = []
+# usd_networths = []
 
-    krw_accounts_data = []
-    krw_networths = []
+# krw_accounts_data = []
+# krw_networths = []
 
-    usd_asset_breakdown = AssetBreakdown()
-    krw_asset_breakdown = AssetBreakdown()
+# usd_asset_breakdown = AssetBreakdown()
+# krw_asset_breakdown = AssetBreakdown()
 
-    accounts = db.query(Account).order_by(Account.order).all()
+# accounts = db.query(Account).order_by(Account.order).all()
 
-    # 3) 계좌별 처리
-    for account in accounts:
-        print()
-        print()
-        print(account.account_name)
+# # 3) 계좌별 처리
+# for account in accounts:
+#     print()
+#     print()
+#     print(account.account_name)
 
-        usd_net = 0
-        krw_net = 0
-        if account.id in [34, 35]:
-            if account.id == 34:  # 새롬 토스 새롬 투자 계좌 (USD)
-                opponent_krw_account_id = 18  # 새롬 토스 새롬 투자 계좌 (KRW)
-            elif account.id == 35:  # 새롬 미래에셋 새롬 투자 계좌 (USD)
-                opponent_krw_account_id = 21  # 새롬 미래에셋 새롬 투자 계좌 (KRW)
+#     usd_net = 0
+#     krw_net = 0
+#     if account.id in [34, 35]:
+#         if account.id == 34:  # 새롬 토스 새롬 투자 계좌 (USD)
+#             opponent_krw_account_id = 18  # 새롬 토스 새롬 투자 계좌 (KRW)
+#         elif account.id == 35:  # 새롬 미래에셋 새롬 투자 계좌 (USD)
+#             opponent_krw_account_id = 21  # 새롬 미래에셋 새롬 투자 계좌 (KRW)
 
-            usd_sum_in = (
-                db.query(func.sum(Transaction.amount))
-                .filter(
-                    Transaction.account_id == account.id,
-                    or_(
-                        Transaction.type == TransactionType.DEPOSIT,
-                        Transaction.type == TransactionType.FX_DEPOSIT,
-                    ),
-                )
-                .scalar()
-                or 0
-            )
+#         usd_sum_in = (
+#             db.query(func.sum(Transaction.amount))
+#             .filter(
+#                 Transaction.account_id == account.id,
+#                 or_(
+#                     Transaction.type == TransactionType.DEPOSIT,
+#                     Transaction.type == TransactionType.FX_DEPOSIT,
+#                 ),
+#             )
+#             .scalar()
+#             or 0
+#         )
 
-            usd_sum_out = (
-                db.query(func.sum(Transaction.amount))
-                .filter(
-                    Transaction.account_id == account.id,
-                    or_(
-                        Transaction.type == TransactionType.WITHDRAWAL,
-                        Transaction.type == TransactionType.FX_WITHDRAWAL,
-                    ),
-                )
-                .scalar()
-                or 0
-            )
-            usd_net = usd_sum_in - usd_sum_out
+#         usd_sum_out = (
+#             db.query(func.sum(Transaction.amount))
+#             .filter(
+#                 Transaction.account_id == account.id,
+#                 or_(
+#                     Transaction.type == TransactionType.WITHDRAWAL,
+#                     Transaction.type == TransactionType.FX_WITHDRAWAL,
+#                 ),
+#             )
+#             .scalar()
+#             or 0
+#         )
+#         usd_net = usd_sum_in - usd_sum_out
 
-            krw_sum_out = (
-                db.query(func.sum(Transaction.amount))
-                .filter(
-                    Transaction.account_id == opponent_krw_account_id,
-                    Transaction.type == TransactionType.FX_WITHDRAWAL,
-                )
-                .scalar()
-                or 0
-            )
+#         krw_sum_out = (
+#             db.query(func.sum(Transaction.amount))
+#             .filter(
+#                 Transaction.account_id == opponent_krw_account_id,
+#                 Transaction.type == TransactionType.FX_WITHDRAWAL,
+#             )
+#             .scalar()
+#             or 0
+#         )
 
-            krw_sum_in = (
-                db.query(func.sum(Transaction.amount))
-                .filter(
-                    Transaction.account_id == opponent_krw_account_id,
-                    Transaction.type == TransactionType.FX_DEPOSIT,
-                )
-                .scalar()
-                or 0
-            )
+#         krw_sum_in = (
+#             db.query(func.sum(Transaction.amount))
+#             .filter(
+#                 Transaction.account_id == opponent_krw_account_id,
+#                 Transaction.type == TransactionType.FX_DEPOSIT,
+#             )
+#             .scalar()
+#             or 0
+#         )
 
-            krw_net = krw_sum_out - krw_sum_in
-            print("usd_net, krw_net")
-            print(usd_net, krw_net)
+#         krw_net = krw_sum_out - krw_sum_in
+#         print("usd_net, krw_net")
+#         print(usd_net, krw_net)
 
-        account_networth = 0
-        ab = AssetBreakdown()
+#     account_networth = 0
+#     ab = AssetBreakdown()
 
-        if account.account_type == AccountType.Checking:
-            account_networth = get_checking_account_networth(db, account)
-            ab += AssetBreakdown(cash=account_networth)
-        elif account.account_type == AccountType.Saving:
-            account_networth = get_checking_account_networth(db, account)
-            ab += AssetBreakdown(saving=account_networth)
-        elif account.account_type == AccountType.STOCK:
-            account_networth, ab = get_stock_account_networth(db, account)
-        else:
-            continue
+#     if account.account_type == AccountType.Checking:
+#         account_networth = get_checking_account_networth(db, account)
+#         ab += AssetBreakdown(cash=account_networth)
+#     elif account.account_type == AccountType.Saving:
+#         account_networth = get_checking_account_networth(db, account)
+#         ab += AssetBreakdown(saving=account_networth)
+#     elif account.account_type == AccountType.STOCK:
+#         account_networth, ab = get_stock_account_networth(db, account)
+#     else:
+#         continue
 
-        # 프론트에서 바로 쓸 수 있도록 dict로 변환
-        account_info = {
-            "bank_name": account.bank_name,
-            "account_name": account.account_name,
-            "account_type": account.account_type.value,
-            "usd_net": usd_net,
-            "krw_net": krw_net,
-            "breakdown": {
-                "cash": float(ab.cash),
-                "saving": float(ab.saving),
-                "bond": float(ab.bond),
-                "stock": float(ab.stock),
-                "invested": float(ab.invested),
-                "profit": float(ab.profit),
-            },
-        }
+#     # 프론트에서 바로 쓸 수 있도록 dict로 변환
+#     account_info = {
+#         "bank_name": account.bank_name,
+#         "account_name": account.account_name,
+#         "account_type": account.account_type.value,
+#         "usd_net": usd_net,
+#         "krw_net": krw_net,
+#         "breakdown": {
+#             "cash": float(ab.cash),
+#             "saving": float(ab.saving),
+#             "bond": float(ab.bond),
+#             "stock": float(ab.stock),
+#             "invested": float(ab.invested),
+#             "profit": float(ab.profit),
+#         },
+#     }
 
-        if account.account_currency_type == AccountCurrencyType.USD:
-            usd_assets_value += account_networth
-            usd_accounts_data.append(account_info)
-            usd_networths.append(float(account_networth))
-            usd_asset_breakdown += ab
-        elif account.account_currency_type == AccountCurrencyType.KRW:
-            krw_assets_value += account_networth
-            krw_accounts_data.append(account_info)
-            krw_networths.append(float(account_networth))
-            krw_asset_breakdown += ab
-        print(account.account_name, ab.invested, ab.profit)
+#     if account.account_currency_type == AccountCurrencyType.USD:
+#         usd_assets_value += account_networth
+#         usd_accounts_data.append(account_info)
+#         usd_networths.append(float(account_networth))
+#         usd_asset_breakdown += ab
+#     elif account.account_currency_type == AccountCurrencyType.KRW:
+#         krw_assets_value += account_networth
+#         krw_accounts_data.append(account_info)
+#         krw_networths.append(float(account_networth))
+#         krw_asset_breakdown += ab
+#     print(account.account_name, ab.invested, ab.profit)
 
-    # 4) USD/KRW 변환 계산
-    total_usd = usd_assets_value + krw_assets_value / usd_krw
-    total_krw = usd_assets_value * usd_krw + krw_assets_value
+# # 4) USD/KRW 변환 계산
+# total_usd = usd_assets_value + krw_assets_value / usd_krw
+# total_krw = usd_assets_value * usd_krw + krw_assets_value
 
-    usd_percent = (usd_assets_value / total_usd) * 100 if total_usd else 0
-    krw_percent = (krw_assets_value / total_krw) * 100 if total_krw else 0
+# usd_percent = (usd_assets_value / total_usd) * 100 if total_usd else 0
+# krw_percent = (krw_assets_value / total_krw) * 100 if total_krw else 0
 
-    total_asset_breakdown_in_usd = usd_asset_breakdown + (krw_asset_breakdown / usd_krw)
+# total_asset_breakdown_in_usd = usd_asset_breakdown + (krw_asset_breakdown / usd_krw)
 
-    # 5) 응답
-    return {
-        "rate": usd_krw,
-        "as_of": as_of or datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "total": {"amount_usd": total_usd, "amount_krw": total_krw},
-        "breakdown": {
-            "usd_assets": {
-                "amount_usd": usd_assets_value,
-                "amount_krw": usd_assets_value * usd_krw,
-                "percent": usd_percent,
-            },
-            "krw_assets": {
-                "amount_usd": krw_assets_value / usd_krw,
-                "amount_krw": krw_assets_value,
-                "percent": krw_percent,
-            },
-        },
-        "usd_accounts": usd_accounts_data,
-        "usd_networths": usd_networths,
-        "krw_accounts": krw_accounts_data,
-        "krw_networths": krw_networths,
-        "type_breakdown": total_asset_breakdown_in_usd.to_list(),
-    }
+# # 5) 응답
+# return {
+#     "rate": usd_krw,
+#     "as_of": as_of or datetime.now().strftime("%Y-%m-%d %H:%M"),
+#     "total": {"amount_usd": total_usd, "amount_krw": total_krw},
+#     "breakdown": {
+#         "usd_assets": {
+#             "amount_usd": usd_assets_value,
+#             "amount_krw": usd_assets_value * usd_krw,
+#             "percent": usd_percent,
+#         },
+#         "krw_assets": {
+#             "amount_usd": krw_assets_value / usd_krw,
+#             "amount_krw": krw_assets_value,
+#             "percent": krw_percent,
+#         },
+#     },
+#     "usd_accounts": usd_accounts_data,
+#     "usd_networths": usd_networths,
+#     "krw_accounts": krw_accounts_data,
+#     "krw_networths": krw_networths,
+#     "type_breakdown": total_asset_breakdown_in_usd.to_list(),
+# }

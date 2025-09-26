@@ -105,20 +105,19 @@
           {{ profit_cell_with_pct(portfolio_totals.total_profit, currency_symbol, num_format, portfolio_totals.total_profit_pct) }}
         </tr>
       </tfoot>
-    </tbody>
-  </table>
-</div>
+    </table>
+  </div>
 {% else %}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-  <div class="card-dashboard">
-    <div class="card-label">총 자산</div>
-    <div class="card-value">{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="card-dashboard">
+      <div class="card-label">총 자산</div>
+      <div class="card-value">{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</div>
+    </div>
+    <div class="card-dashboard">
+      <div class="card-label">총 수익</div>
+      <div class="card-value">{{ currency_symbol }}{{ num_format.format(interest) }}</div>
+    </div>
   </div>
-  <div class="card-dashboard">
-    <div class="card-label">총 수익</div>
-    <div class="card-value">{{ currency_symbol }}{{ num_format.format(interest) }}</div>
-  </div>
-</div>
 {% endif %}
 <div class="card">
   <h2 class="section-title flex-between">
