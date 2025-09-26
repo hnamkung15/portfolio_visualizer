@@ -144,20 +144,6 @@ class Portfolio:
         self.cash += float(amount)
         self.snapshot[account_id] = float(amount)
 
-    def print_holdings(self):
-        print("=== Portfolio Holdings ===")
-        if not self.holdings:
-            print("No holdings")
-            return
-
-        for symbol, h in self.holdings.items():
-            print(
-                f"Symbol: {symbol}, "
-                f"Quantity: {h['quantity']}, "
-                f"Avg Cost: {h['avg_cost']:.2f}"
-            )
-        print("==========================")
-
 
 def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
     timestamps = []
