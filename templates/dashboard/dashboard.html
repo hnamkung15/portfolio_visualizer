@@ -1,7 +1,17 @@
 {% import "components/portfolio_macros.html" as portfolio_macros %}
 {% extends "base.html" %}
-{% set usd_format = "${:,.2f}" %}
+{% set usd_format = "${:,.0f}" %}
 {% set krw_format = "₩{:,.0f}" %}
+{% macro krw_format_macro(amount) %}
+  {% set amount_in_won = amount / 10000 %}
+  {% if amount_in_won >= 10000 %}
+    {% set amount_in_won_billions = amount_in_won // 10000 %}
+    {% set amount_in_won_remaining = amount_in_won % 10000 %}
+    ₩{{ "{:,.0f}".format(amount_in_won_billions) }}억 {{ "{:.0f}".format(amount_in_won_remaining) }}만원
+  {% else %}
+    ₩{{ "{:,.0f}".format(amount_in_won) }} 만원
+  {% endif %}
+{% endmacro %}
 {% set percent_format = "{:.1f}%" %}
 {% block content %}
   <h2 class="section-title">대시보드</h2>
@@ -17,7 +27,7 @@
       <div class="card-value">
         {{ usd_format.format(total_usd) }}
         <br>
-        {{ usd_format.format(total_krw) }}
+        {{ krw_format_macro(total_krw) }}
       </div>
     </div>
     <!-- 자산 in USD -->
@@ -26,7 +36,7 @@
       <div class="card-value">
         {{ usd_format.format(usd_assets.amount_usd) }}
         <br>
-        {{ usd_format.format(usd_assets.amount_krw) }}
+        {{ krw_format_macro(usd_assets.amount_krw) }}
       </div>
       <div class="card-subtext">({{ percent_format.format(usd_assets.percent) }})</div>
     </div>
@@ -36,7 +46,7 @@
       <div class="card-value">
         {{ usd_format.format(krw_assets.amount_usd) }}
         <br>
-        {{ usd_format.format(krw_assets.amount_krw) }}
+        {{ krw_format_macro(krw_assets.amount_krw) }}
       </div>
       <div class="card-subtext">({{ percent_format.format(krw_assets.percent) }})</div>
     </div>
