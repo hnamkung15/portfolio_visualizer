@@ -1,14 +1,4 @@
-{% macro profit_cell(value, currency_symbol, num_format) %}
-  <td class="{% if value > 0 %}text-green-600{% elif value < 0 %}text-red-600{% else %}text-black{% endif %}">
-    {{ currency_symbol }}{{ num_format.format(value) }}
-  </td>
-{% endmacro %}
-{% macro profit_cell_with_pct(value, currency_symbol, num_format, pct) %}
-  <td class="{% if value > 0 %}text-green-600{% elif value < 0 %}text-red-600{% else %}text-black{% endif %}">
-    {{ currency_symbol }}{{ num_format.format(value) }}
-    ({{ "{:.2f}".format(pct) }}%)
-  </td>
-{% endmacro %}
+{% import "components/portfolio_macros.html" as portfolio_macros %}
 <h2 class="section-title">{{ selected_account.account_name }}</h2>
 {% set currency_symbol = "$" if selected_account.account_currency_type == "USD" else "₩" %}
 {% set num_format = "{:,.2f}" if selected_account.account_currency_type == "USD" else "{:,.0f}" %}
@@ -32,80 +22,8 @@
     </div>
   </div>
   <div class="card">
-    <h2 class="section-title">포트폴리오 현황</h2>
-    <table class="table-general">
-      <thead>
-        <tr>
-          <th>종목 코드</th>
-          <th>종목명</th>
-          <th>투자 금액</th>
-          <th>수량</th>
-          <th>평균 단가</th>
-          <th>현재 가격</th>
-          <th>평가 금액</th>
-          <th>비중</th>
-          <th>평가 수익</th>
-          <th>청산 이익</th>
-          <th>총 배당금</th>
-          <th>총 수익</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for stock in portfolio_list %}
-          <tr class="{% if stock.quantity == 0 %} bg-gray-100 text-gray-400 {% endif %}">
-            <!--종목 코드-->
-            <td>{{ stock.symbol }}</td>
-            <!--종목명-->
-            <td>{{ stock.name }}</td>
-            <!--투자 금액-->
-            <td>{{ currency_symbol }}{{ num_format.format(stock.invested) }}</td>
-            <!--수량-->
-            <td>{{ num_format.format(stock.quantity) }}</td>
-            <!--평균 단가-->
-            <td>{{ currency_symbol }}{{ num_format.format(stock.avg_price) }}</td>
-            <!--현재 가격-->
-            <td>{{ currency_symbol }}{{ num_format.format(stock.current_price) }}</td>
-            <!--평가 금액-->
-            <td>{{ currency_symbol }}{{ num_format.format(stock.valuation) }}</td>
-            <!--비중-->
-            <td>{{ "{:.2f}".format(stock.valuation_pct) }}%</td>
-            <!--평가 수익-->
-            {{ profit_cell_with_pct(stock.returns_amount, currency_symbol, num_format, stock.returns_pct) }}
-            <!--청산 이익-->
-            {{ profit_cell(stock.realized_gain, currency_symbol, num_format) }}
-            <!--총 배당금-->
-            {{ profit_cell(stock.dividend_total, currency_symbol, num_format) }}
-            <!--총 수익-->
-            {{ profit_cell_with_pct(stock.total_profit, currency_symbol, num_format, stock.total_profit_pct) }}
-          </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr>
-          <!--종목 코드-->
-          <!--종목명-->
-          <td colspan="2">합계</td>
-          <!--투자 금액-->
-          <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.invested) }}</td>
-          <!--평균 단가-->
-          <!--수량-->
-          <td colspan="2">-</td>
-          <!--평가 금액-->
-          <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</td>
-          <!--비중-->
-          <!--현재 가격-->
-          <td colspan="2">-</td>
-          <!--평가 수익-->
-          {{ profit_cell_with_pct(portfolio_totals.returns_amount, currency_symbol, num_format, portfolio_totals.returns_pct) }}
-          <!--청산 이익-->
-          {{ profit_cell(portfolio_totals.realized_gain, currency_symbol, num_format) }}
-          <!--총 배당금-->
-          {{ profit_cell(portfolio_totals.dividend_total, currency_symbol, num_format) }}
-          <!--총 수익-->
-          {{ profit_cell_with_pct(portfolio_totals.total_profit, currency_symbol, num_format, portfolio_totals.total_profit_pct) }}
-        </tr>
-      </tfoot>
-    </table>
+    <h2 class="section-title">Portfolio</h2>
+    {{ portfolio_macros.render_portfolio_table(portfolio_list, portfolio_totals, currency_symbol, num_format) }}
   </div>
 {% else %}
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
