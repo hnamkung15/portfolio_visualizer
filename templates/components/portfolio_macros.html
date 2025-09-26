@@ -49,9 +49,9 @@
             <tr>
                 <td colspan="2">합계</td>
                 <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.invested) }}</td>
-                <td colspan="2">-</td>
+                <td colspan="3">-</td>
                 <td>{{ currency_symbol }}{{ num_format.format(portfolio_totals.valuation) }}</td>
-                <td colspan="2">-</td>
+                <td>-</td>
                 {{ profit_cell_with_pct(portfolio_totals.returns_amount, currency_symbol, num_format, portfolio_totals.returns_pct) }}
                 {{ profit_cell(portfolio_totals.realized_gain, currency_symbol, num_format) }}
                 {{ profit_cell(portfolio_totals.dividend_total, currency_symbol, num_format) }}
