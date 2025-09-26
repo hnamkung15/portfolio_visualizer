@@ -41,14 +41,28 @@ def default_layout(title, xaxis_title, yaxis_title, yaxis_tickformat):
         xaxis=dict(
             showgrid=True,
             showticklabels=True,
-            tickangle=45,
-            gridcolor="rgb(224,224,224)",
+            tickangle=0,
+            gridcolor="rgba(0,0,0,0.8)",
+            dtick="M12",
+            ticks="outside",  # Ticks 바깥쪽에 표시
+            tickwidth=2,  # Tick의 두께
+            tickformat="%Y",
+            ticklabelstandoff=15,
+            minor=dict(
+                dtick="M1",  # Minor Ticks: 1개월 간격
+                showgrid=True,  # Minor Gridlines 활성화
+                gridcolor="rgba(0,0,0,0.2)",  # Minor Gridlines 색상
+                ticklen=5,  # Minor tick의 길이
+                tickwidth=1,  # Minor tick의 두께
+                tickcolor="rgba(0,0,0,0.3)",  # Minor tick의 색상
+            ),
         ),
         yaxis=dict(
             showgrid=True,
             gridcolor="rgb(224,224,224)",
             zeroline=True,
             tickformat=yaxis_tickformat,
+            tickfont=dict(size=18),
         ),
         margin=dict(l=50, r=50, t=80, b=50),
     )
