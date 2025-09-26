@@ -5,13 +5,17 @@
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <div class="card-dashboard">
       <div class="card-label">USD → KRW</div>
-      <div id="rate" class="card-rate">--</div>
-      <div id="rate_asof" class="card-subtext"></div>
+      <div class="card-rate">{{ fx_rate }}</div>
+      <div class="card-subtext">{{ fx_as_of }}</div>
     </div>
     <!-- 총 자산 -->
     <div class="card-dashboard">
       <div class="card-label">총 자산</div>
-      <div class="card-value" id="total_both">--</div>
+      <div class="card-value">
+        {{ "${:,.2f}".format(total.usd) }}
+        <br>
+        {{ "₩{:,.0f}".format(total.krw) }}
+      </div>
     </div>
     <!-- 자산 in USD -->
     <div class="card-dashboard">

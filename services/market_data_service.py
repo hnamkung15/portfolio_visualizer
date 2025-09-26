@@ -171,3 +171,6 @@ def price_lookup(db, symbol: str, date):
 
 # df = fdr.DataReader("VFFSX", "2025-09-10", "2025-09-20")
 # print(df)
+
+# df = fdr.DataReader("USD/KRW", "2025-09-26", "2025-09-26")
+# print(df)

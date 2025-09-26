@@ -25,38 +25,13 @@ from services.portfolio_service import (
     build_portfolio_timeseries,
     generate_portfolio_tabular_data,
 )
+from utils.time_utils import get_pt_now
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
 
-@router.get("/dashboard", response_class=HTMLResponse)
-def dashboard(request: Request, db: Session = Depends(get_db)):
-    usd_graphs_html, usd_portfolio_list, usd_portfolio_totals = generate_portfolio(
-        db, AccountCurrencyType.USD
-    )
-    krw_graphs_html, krw_portfolio_list, krw_portfolio_totals = generate_portfolio(
-        db, AccountCurrencyType.KRW
-    )
-
-    return templates.TemplateResponse(
-        "dashboard/dashboard.html",
-        {
-            "request": request,
-            "active": "dashboard",
-            "usd_graphs_html": usd_graphs_html,
-            "usd_portfolio_list": usd_portfolio_list,
-            "usd_portfolio_totals": usd_portfolio_totals,
-            "krw_graphs_html": krw_graphs_html,
-            "krw_portfolio_list": krw_portfolio_list,
-            "krw_portfolio_totals": krw_portfolio_totals,
-        },
-    )
-
-
-@router.get("/api/dashboard/rate")
-def generate_dashboard_data(db: Session = Depends(get_db)):
-    # 1) 환율 불러오기
+def get_exchange_rate():
     url = "https://api.manana.kr/exchange/rate.json"
     resp = requests.get(url, timeout=5)
     resp.raise_for_status()
@@ -72,10 +47,45 @@ def generate_dashboard_data(db: Session = Depends(get_db)):
             break
     if usd_krw is None:
         raise RuntimeError("USD/KRW rate not found")
-    return {
-        "rate": usd_krw,
-        "as_of": as_of or datetime.now().strftime("%Y-%m-%d %H:%M"),
-    }
+
+    return usd_krw, get_pt_now().strftime("%Y-%m-%d %H:%M:%S (PT)")
+
+
+@router.get("/dashboard", response_class=HTMLResponse)
+def dashboard(request: Request, db: Session = Depends(get_db)):
+    fx_rate, fx_as_of = get_exchange_rate()
+    usd_graphs_html, usd_portfolio_list, usd_portfolio_totals = generate_portfolio(
+        db, AccountCurrencyType.USD
+    )
+    krw_graphs_html, krw_portfolio_list, krw_portfolio_totals = generate_portfolio(
+        db, AccountCurrencyType.KRW
+    )
+
+    usd_val = usd_portfolio_totals["valuation"]
+    krw_val = krw_portfolio_totals["valuation"]
+
+    total_usd = usd_val + krw_val / fx_rate
+    total_krw = krw_val + usd_val * fx_rate
+
+    return templates.TemplateResponse(
+        "dashboard/dashboard.html",
+        {
+            "request": request,
+            "active": "dashboard",
+            "fx_rate": fx_rate,
+            "fx_as_of": fx_as_of,
+            "usd_graphs_html": usd_graphs_html,
+            "usd_portfolio_list": usd_portfolio_list,
+            "usd_portfolio_totals": usd_portfolio_totals,
+            "krw_graphs_html": krw_graphs_html,
+            "krw_portfolio_list": krw_portfolio_list,
+            "krw_portfolio_totals": krw_portfolio_totals,
+            "total": {
+                "usd": total_usd,
+                "krw": total_krw,
+            },
+        },
+    )
 
 
 def generate_portfolio(db, currency_type):

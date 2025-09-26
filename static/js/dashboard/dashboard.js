@@ -22,49 +22,6 @@ function num(v) {
 
 let currencyPie, allocationPie;
 
-async function loadRate() {
-  const r = await getJSON("/api/dashboard/rate");
-  document.getElementById("rate").textContent = r.rate?.toLocaleString("ko-KR");
-  document.getElementById("rate_asof").textContent = r.as_of || "";
-}
-
-// async function loadUSDPortfolio() {
-//   const s = await getJSON("/api/dashboard/portfolio/USD");
-//   console.log(s);
-//   const portfolioList = s.graphs_html;
-//   const portfolioContainer = document.getElementById("usd-portfolio-container");
-
-//   portfolioContainer.innerHTML = "";
-
-//   // 그래프 HTML 삽입
-//   portfolioList.forEach((graphHtml) => {
-//     const graphElement = document.createElement("div");
-//     graphElement.classList.add("w-[800px]", "card");
-
-//     // HTML을 innerHTML로 삽입
-//     graphElement.innerHTML = graphHtml;
-
-//     // <script> 태그가 포함되어 있을 경우, 이를 동적으로 실행
-//     const scripts = graphElement.getElementsByTagName("script");
-//     Array.from(scripts).forEach((script) => {
-//       const newScript = document.createElement("script");
-//       newScript.innerHTML = script.innerHTML;
-//       document.body.appendChild(newScript);
-//     });
-
-//     portfolioContainer.appendChild(graphElement);
-//   });
-// }
-
-// async function loadKRWPortfolio() {
-//   const s = await getJSON("/api/dashboard/portfolio/KRW");
-// }
-
-async function load() {
-  await Promise.all([loadRate()]);
-}
-load().catch((e) => console.error(e));
-
 // // 1) 자산 + 환율 데이터
 // const s = await getJSON("/api/dashboard");
 // // expected:
