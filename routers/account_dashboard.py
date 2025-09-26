@@ -7,7 +7,7 @@ from models.transactions import Transaction
 from models.account import Account, AccountType
 
 from services.market_data_service import price_lookup
-from services.plot_service import (
+from services.plot.plot_service import (
     cash_and_interest_graph,
     realized_gain_graph,
     return_graph,

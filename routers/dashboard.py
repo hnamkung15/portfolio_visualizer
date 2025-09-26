@@ -13,7 +13,7 @@ from services.account_service import (
     get_checking_account_networth,
     get_stock_account_networth,
 )
-from services.plot_service import (
+from services.plot.plot_service import (
     realized_gain_graph,
     return_graph,
     return_pct_graph,
