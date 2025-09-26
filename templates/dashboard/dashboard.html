@@ -1,5 +1,8 @@
 {% import "components/portfolio_macros.html" as portfolio_macros %}
 {% extends "base.html" %}
+{% set usd_format = "${:,.2f}" %}
+{% set krw_format = "₩{:,.0f}" %}
+{% set percent_format = "{:.1f}%" %}
 {% block content %}
   <h2 class="section-title">대시보드</h2>
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -12,22 +15,30 @@
     <div class="card-dashboard">
       <div class="card-label">총 자산</div>
       <div class="card-value">
-        {{ "${:,.2f}".format(total.usd) }}
+        {{ usd_format.format(total_usd) }}
         <br>
-        {{ "₩{:,.0f}".format(total.krw) }}
+        {{ usd_format.format(total_krw) }}
       </div>
     </div>
     <!-- 자산 in USD -->
     <div class="card-dashboard">
       <div class="card-label">자산 in USD</div>
-      <div class="card-value" id="total_usd">--</div>
-      <div class="card-subtext" id="usd_percent"></div>
+      <div class="card-value">
+        {{ usd_format.format(usd_assets.amount_usd) }}
+        <br>
+        {{ usd_format.format(usd_assets.amount_krw) }}
+      </div>
+      <div class="card-subtext">({{ percent_format.format(usd_assets.percent) }})</div>
     </div>
     <!-- 자산 in KRW -->
     <div class="card-dashboard">
       <div class="card-label">자산 in KRW</div>
-      <div class="card-value" id="total_krw">--</div>
-      <div class="card-subtext" id="krw_percent"></div>
+      <div class="card-value">
+        {{ usd_format.format(krw_assets.amount_usd) }}
+        <br>
+        {{ usd_format.format(krw_assets.amount_krw) }}
+      </div>
+      <div class="card-subtext">({{ percent_format.format(krw_assets.percent) }})</div>
     </div>
   </div>
   <div class="card">

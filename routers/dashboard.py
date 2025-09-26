@@ -67,6 +67,18 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     total_usd = usd_val + krw_val / fx_rate
     total_krw = krw_val + usd_val * fx_rate
 
+    usd_assets = {
+        "amount_usd": usd_val,
+        "amount_krw": usd_val * fx_rate,
+        "percent": (usd_val / total_usd) * 100,
+    }
+
+    krw_assets = {
+        "amount_usd": krw_val / fx_rate,
+        "amount_krw": krw_val,
+        "percent": (krw_val / total_krw) * 100,
+    }
+
     return templates.TemplateResponse(
         "dashboard/dashboard.html",
         {
@@ -74,16 +86,16 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "active": "dashboard",
             "fx_rate": fx_rate,
             "fx_as_of": fx_as_of,
+            "total_usd": total_usd,
+            "total_krw": total_krw,
+            "usd_assets": usd_assets,
+            "krw_assets": krw_assets,
             "usd_graphs_html": usd_graphs_html,
             "usd_portfolio_list": usd_portfolio_list,
             "usd_portfolio_totals": usd_portfolio_totals,
             "krw_graphs_html": krw_graphs_html,
             "krw_portfolio_list": krw_portfolio_list,
             "krw_portfolio_totals": krw_portfolio_totals,
-            "total": {
-                "usd": total_usd,
-                "krw": total_krw,
-            },
         },
     )
 
