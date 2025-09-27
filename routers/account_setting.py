@@ -39,8 +39,15 @@ def account_setting(request: Request, db: Session = Depends(get_db), current_use
     )
 
 
+@router.get("/account_setting/add")
+def add_account_page(request: Request):
+    """Redirect to account setting page for adding accounts."""
+    return RedirectResponse(url="/account_setting", status_code=302)
+
+
 @router.post("/account_setting/add")
 def add_account(
+    request: Request,
     owner: Owner = Form(...),
     bank_name: BankName = Form(...),
     account_name: str = Form(...),
@@ -48,6 +55,7 @@ def add_account(
     account_type: AccountType = Form(...),
     account_category: AccountCategory = Form(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     max_order = db.query(Account).count()
     new_acc = Account(
@@ -58,19 +66,20 @@ def add_account(
         account_type=account_type,
         account_category=account_category,
         order=max_order,
+        user_id=current_user.id,
     )
     db.add(new_acc)
     db.commit()
-    return RedirectResponse(url="/accounts", status_code=303)
+    return RedirectResponse(url="/account_setting", status_code=303)
 
 
 @router.post("/account_setting/delete/{account_id}")
-def delete_account(account_id: int, db: Session = Depends(get_db)):
-    acc = db.query(Account).get(account_id)
+def delete_account(account_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    acc = db.query(Account).filter(Account.user_id == current_user.id, Account.id == account_id).first()
     if acc:
         db.delete(acc)
         db.commit()
-    return RedirectResponse(url="/accounts", status_code=303)
+    return RedirectResponse(url="/account_setting", status_code=303)
 
 
 @router.post("/account_setting/reorder")
