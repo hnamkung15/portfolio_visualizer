@@ -312,7 +312,12 @@ def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
 
 
 def generate_portfolio_and_timeseries_data(db, currency_type, user_id):
-    accounts = db.query(Account).filter(Account.user_id == user_id).order_by(Account.order).all()
+    accounts = (
+        db.query(Account)
+        .filter(Account.user_id == user_id)
+        .order_by(Account.order)
+        .all()
+    )
     account_ids = [
         account.id
         for account in accounts
@@ -326,5 +331,9 @@ def generate_portfolio_and_timeseries_data(db, currency_type, user_id):
         .order_by(Transaction.date.asc(), Transaction.id.asc())
         .all()
     )
-    timeseries = build_portfolio_timeseries(transactions, portfolio)
+    if len(transactions) == 0:
+        timeseries = None
+    else:
+        timeseries = build_portfolio_timeseries(transactions, portfolio)
+
     return portfolio, timeseries

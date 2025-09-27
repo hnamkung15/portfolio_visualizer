@@ -107,19 +107,20 @@ def total_portfolio_pie_chart(
         "Dividend Stocks",
         "Stable Assets",
     ]:
-        usd_value = category_totals[key]
-        category_values.append(usd_value)
-        category_labels.append(key)
-        category_hovertext.append(
-            f"{format_usd(usd_value)}<br>{format_krw(usd_value, fx_rate)}"
-        )
-        for ind_key, value in individuals[key].items():
-            print(ind_key, value)
-            individual_labels.append(ind_key)
-            individual_values.append(value)
-            individual_hovertext.append(
-                f"{ticker_map[ind_key]}<br>{format_usd(value)}<br>{format_krw(value, fx_rate)}"
+        if key in category_totals:
+            usd_value = category_totals[key]
+            category_values.append(usd_value)
+            category_labels.append(key)
+            category_hovertext.append(
+                f"{format_usd(usd_value)}<br>{format_krw(usd_value, fx_rate)}"
             )
+            for ind_key, value in individuals[key].items():
+                print(ind_key, value)
+                individual_labels.append(ind_key)
+                individual_values.append(value)
+                individual_hovertext.append(
+                    f"{ticker_map[ind_key]}<br>{format_usd(value)}<br>{format_krw(value, fx_rate)}"
+                )
 
     data = [
         go.Pie(

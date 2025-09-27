@@ -96,7 +96,7 @@ def dashboard(
                 "krw_portfolio_list": [],
                 "krw_portfolio_totals": {},
                 "total_graphs_html": [],
-                "no_transaction": true,
+                "no_transaction": 1,
             },
         )
 
@@ -108,8 +108,8 @@ def dashboard(
     )
     total_graphs_html = generate_common_portfolio(db, fx_rate, current_user.id)
 
-    usd_val = usd_portfolio_totals["valuation"]
-    krw_val = krw_portfolio_totals["valuation"]
+    usd_val = usd_portfolio_totals.get("valuation", 0)
+    krw_val = krw_portfolio_totals.get("valuation", 0)
 
     total_usd = usd_val + krw_val / fx_rate
     total_krw = krw_val + usd_val * fx_rate
@@ -144,7 +144,7 @@ def dashboard(
             "krw_portfolio_list": krw_portfolio_list,
             "krw_portfolio_totals": krw_portfolio_totals,
             "total_graphs_html": total_graphs_html,
-            "no_transaction": false,
+            "no_transaction": 0,
         },
     )
 
@@ -168,6 +168,8 @@ def generate_individual_portfolio_data(db, currency_type, user_id):
     portfolio, timeseries = generate_portfolio_and_timeseries_data(
         db, currency_type, user_id
     )
+    if timeseries is None:
+        return [], [], {}
     graph_funcs = [
         # pie_chart,
         total_capital_and_cash_graph,

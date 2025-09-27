@@ -85,30 +85,34 @@
         </div>
       {% endfor %}
     </div>
-    <div class="card">
-      <h2 class="section-title">Portfolio (USD)</h2>
-      {{ portfolio_macros.render_portfolio_table(usd_portfolio_list, usd_portfolio_totals, "$", "{:,.2f}") }}
-    </div>
-    <div class="card">
-      <h2 class="section-title">Portfolio (KRW)</h2>
-      {{ portfolio_macros.render_portfolio_table(krw_portfolio_list, krw_portfolio_totals, "₩", "{:,.0f}") }}
-    </div>
-    <div class="card">
-      <h2 class="section-title flex-between">USD 그래프</h2>
-      {% for graph in usd_graphs_html %}
-        <div class="w-[800px] card">
-          <div>{{ graph|safe }}</div>
-        </div>
-      {% endfor %}
-    </div>
-    <div class="card">
-      <h2 class="section-title flex-between">KRW 그래프</h2>
-      {% for graph in krw_graphs_html %}
-        <div class="w-[800px] card">
-          <div>{{ graph|safe }}</div>
-        </div>
-      {% endfor %}
-    </div>
+    {% if usd_portfolio_list|length > 0 %}
+      <div class="card">
+        <h2 class="section-title">Portfolio (USD)</h2>
+        {{ portfolio_macros.render_portfolio_table(usd_portfolio_list, usd_portfolio_totals, "$", "{:,.2f}") }}
+      </div>
+      <div class="card">
+        <h2 class="section-title flex-between">USD 그래프</h2>
+        {% for graph in usd_graphs_html %}
+          <div class="w-[800px] card">
+            <div>{{ graph|safe }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if krw_portfolio_list|length > 0 %}
+      <div class="card">
+        <h2 class="section-title">Portfolio (KRW)</h2>
+        {{ portfolio_macros.render_portfolio_table(krw_portfolio_list, krw_portfolio_totals, "₩", "{:,.0f}") }}
+      </div>
+      <div class="card">
+        <h2 class="section-title flex-between">KRW 그래프</h2>
+        {% for graph in krw_graphs_html %}
+          <div class="w-[800px] card">
+            <div>{{ graph|safe }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
     <div class="card">
       <div class="section-title">USD 계좌</div>
       <table class="table-dashboard">
