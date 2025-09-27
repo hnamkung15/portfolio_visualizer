@@ -65,11 +65,9 @@ def total_portfolio_pie_chart(
         for t in db.query(Ticker).filter(Ticker.symbol.in_(symbols)).all()
     }
 
-    # 카테고리별 총합을 저장할 딕셔너리
     category_totals = {}
-    individual_stock_totals = []  # 개별 종목들의 금액을 저장할 리스트
+    individuals = {}
 
-    # 각 포트폴리오에서 금액을 계산
     for portfolio, currency in [(usd_portfolio, "USD"), (krw_portfolio, "KRW")]:
         for k, v in portfolio.holdings.items():
             if v["quantity"] != 0:
@@ -77,24 +75,30 @@ def total_portfolio_pie_chart(
                 total_value_in_usd = (
                     total_value if currency == "USD" else total_value / fx_rate
                 )
-                if currency == "USD":
-                    individual_stock_totals.append(
-                        (k, total_value_in_usd)
-                    )  # 개별 종목 금액 추가
-                # 카테고리별 합산
                 category = category_map[k]
                 if category not in category_totals:
                     category_totals[category] = 0
-                category_totals[category] += total_value_in_usd  # 카테고리 총합 추가
+                    individuals[category] = {}
+                category_totals[category] += total_value_in_usd
+                individuals[category][k] = total_value_in_usd
 
     # 현금도 카테고리에 포함
     usd_cash_in_usd = usd_portfolio.cash
     krw_cash_in_usd = krw_portfolio.cash / fx_rate
-    category_totals["Stable Assets"] = usd_cash_in_usd + krw_cash_in_usd
+    category_totals["Stable Assets"] += usd_cash_in_usd + krw_cash_in_usd
+    ticker_map["USD Cash"] = "USD 현금"
+    ticker_map["KRW Cash"] = "KRW 현금"
+    individuals["Stable Assets"]["USD Cash"] = usd_cash_in_usd
+    individuals["Stable Assets"]["KRW Cash"] = krw_cash_in_usd
 
     category_labels = []
     category_values = []
-    hovertext = []
+    category_hovertext = []
+
+    individual_labels = []
+    individual_values = []
+    individual_hovertext = []
+
     for key in [
         "Individual Stocks",
         "S&P 500",
@@ -106,24 +110,25 @@ def total_portfolio_pie_chart(
         usd_value = category_totals[key]
         category_values.append(usd_value)
         category_labels.append(key)
-        hovertext.append(f"{format_usd(usd_value)}<br>{format_krw(usd_value, fx_rate)}")
+        category_hovertext.append(
+            f"{format_usd(usd_value)}<br>{format_krw(usd_value, fx_rate)}"
+        )
+        for ind_key, value in individuals[key].items():
+            print(ind_key, value)
+            individual_labels.append(ind_key)
+            individual_values.append(value)
+            individual_hovertext.append(
+                f"{ticker_map[ind_key]}<br>{format_usd(value)}<br>{format_krw(value, fx_rate)}"
+            )
 
-    # category_values = list(category_totals.values())
-    # category_labels = list()
-    # print(category_labels)
-
-    # # 바깥쪽 Pie (개별 종목 금액)
-    # individual_stock_values = [v for _, v in individual_stock_totals]
-    # individual_stock_labels = [ticker_map[k] for k, _ in individual_stock_totals]
-
-    # Pie 차트 데이터
     data = [
         go.Pie(
-            values=category_values,
             labels=category_labels,
+            values=category_values,
             domain=inner_domain,
             hole=inner_hole,
             marker={
+                "line": {"color": COLORS["black"], "width": 1},
                 "colors": [
                     COLORS["pastel_orange"],
                     COLORS["green"],
@@ -131,19 +136,23 @@ def total_portfolio_pie_chart(
                     COLORS["tomato"],
                     COLORS["peach_puff"],
                     COLORS["blue"],
-                ]
+                ],
             },
-            hovertext=hovertext,
+            hovertext=category_hovertext,
             **common_pie_properties,
         ),
-        # go.Pie(
-        #     values=individual_stock_values,
-        #     labels=individual_stock_labels,
-        #     domain=outer_domain,
-        #     hole=outer_hole,
-        #     marker={"colors": ["#EC7063", "#F1948A", "#5DADE2", "#85C1E9"]},
-        #     **common_pie_properties,
-        # ),
+        go.Pie(
+            labels=individual_labels,
+            values=individual_values,
+            domain=outer_domain,
+            hole=outer_hole,
+            hovertext=individual_hovertext,
+            **common_pie_properties,
+            marker={
+                "line": {"color": COLORS["black"], "width": 1},
+                "colors": list(COLORS.values()),
+            },
+        ),
     ]
 
     # 차트 레이아웃 설정

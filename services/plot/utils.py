@@ -120,4 +120,5 @@ COLORS = {
     "apple_green": "#8db600",
     "pink_sherbert": "#f7a7b3",
     "melon": "#f7b7a3",
+    "black": "#000000",
 }
