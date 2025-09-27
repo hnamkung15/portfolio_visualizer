@@ -1,7 +1,7 @@
 import plotly.graph_objs as go
 
 from models.tickers import Ticker
-from services.plot.utils import COLORS
+from services.plot.utils import COLORS, LEGEND_COLORS
 from services.portfolio_service import Portfolio
 
 offset = 0.17
@@ -150,7 +150,7 @@ def total_portfolio_pie_chart(
             **common_pie_properties,
             marker={
                 "line": {"color": COLORS["black"], "width": 1},
-                "colors": list(COLORS.values()),
+                "colors": list(LEGEND_COLORS.values()),
             },
         ),
     ]

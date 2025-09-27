@@ -2,13 +2,6 @@
 # 색상 팔레트
 # ===============================
 COLORS = {
-    "blue": "#1f77b4",
-    "orange": "#ff7f0e",
-    "green": "#2ca02c",
-    "red": "#d62728",
-    "purple": "#9467bd",
-    "brown": "#8c564b",
-    "gray": "#7f7f7f",
     "pastel_blue": "#4e79a7",
     "pastel_orange": "#f28e2b",
     "pastel_green": "#59a14f",
@@ -17,8 +10,6 @@ COLORS = {
     "pastel_yellow": "#edc948",
     "pastel_gray": "#bab0ab",
     "deep_blue": "#0052cc",
-    "bright_orange": "#ff6f00",
-    "lime_green": "#00c853",
     "crimson": "#c62828",
     "violet": "#8e24aa",
     "cyan": "#00acc1",
@@ -121,4 +112,63 @@ COLORS = {
     "pink_sherbert": "#f7a7b3",
     "melon": "#f7b7a3",
     "black": "#000000",
+    "blue": "#1f77b4",
+    "orange": "#ff7f0e",
+    "green": "#2ca02c",
+    "red": "#d62728",
+    "purple": "#9467bd",
+    "brown": "#8c564b",
+    "gray": "#7f7f7f",
+    "bright_orange": "#ff6f00",
+    "lime_green": "#00c853",
+}
+
+LEGEND_COLORS = {
+    "pastel_rose": "#f4b9b2",  # 부드러운 핑크
+    "pastel_lavender": "#d9b6ea",  # 라벤더 톤
+    "pastel_peach": "#f7c6a3",  # 파스텔 복숭아
+    "pastel_mint": "#c8e6d0",  # 민트 그린
+    "pastel_sky_blue": "#a1c8e0",  # 하늘색
+    "pastel_coral": "#f1b0b3",  # 코랄
+    "pastel_yellow": "#f4e2a0",  # 파스텔 노란색
+    "pastel_cream": "#f7f0d1",  # 크림색
+    "pastel_sage": "#a3b69d",  # 세이지 그린
+    "pastel_pink": "#f1a7c2",  # 부드러운 핑크색
+    "pastel_olive": "#b7b39d",  # 올리브 색상
+    "pastel_blue": "#a1c4d5",  # 파스텔 블루
+    "pastel_apricot": "#f4a35a",  # 파스텔 살구
+    "pastel_lime": "#d1f8b1",  # 라임색
+    "pastel_gray": "#d0d1d1",  # 부드러운 회색
+    "pastel_berry": "#f1b5b6",  # 베리 색상
+    "pastel_seafoam": "#b9e1db",  # 바다 거품 색상
+    "pastel_violet": "#b2a2d9",  # 파스텔 바이올렛
+    "pastel_turquoise": "#a3d8c9",  # 터콰이즈
+    "pastel_salmon": "#f1b3a8",  # 연어 색상
+    "pastel_mauve": "#e1c6d5",  # 모브 색상
+    "pastel_butter": "#e7d898",  # 부드러운 버터
+    "pastel_indigo": "#b2c4e1",  # 인디고
+    "pastel_sunflower": "#e9e187",  # 해바라기 색상
+    "pastel_blush": "#f3d1d1",  # 블러시 핑크
+    "pastel_nude": "#e1c4b4",  # 누드색
+    "pastel_raspberry": "#e6a7b9",  # 라즈베리
+    "pastel_grape": "#c5b2e3",  # 포도색
+    "pastel_citrus": "#f5c85b",  # 시트러스
+    "pastel_tangerine": "#ffb585",  # 탄제린
+    "pastel_fog": "#d3d3d3",  # 안개 색상
+    "pastel_papaya": "#f3e2c7",  # 파파야 색상
+    "pastel_ochre": "#dcbf7d",  # 황토색
+    "pastel_lavender_blush": "#f4e4f1",  # 연보라
+    "pastel_mauve_taupe": "#d1b4b1",  # 탕고
+    "pastel_honeydew": "#e0f7e7",  # 허니듀
+    "pastel_frost": "#d4eff5",  # 서리
+    "pastel_amber": "#f8d26d",  # 앰버
+    "pastel_rosewood": "#e1b0a5",  # 장미나무
+    "pastel_coffee": "#d9b08b",  # 커피
+    "pastel_buttercup": "#e6db6b",  # 버터컵
+    "pastel_clay": "#c4a69f",  # 점토 색상
+    "pastel_sea_spray": "#c1e1f1",  # 바다 분무
+    "pastel_blossom": "#f8d1c7",  # 꽃색상
+    "pastel_pebble": "#b1b0ab",  # 자갈
+    "pastel_fawn": "#e2c6a7",  # 새끼 사슴
+    "pastel_pistachio": "#c1e1c1",  # 피스타치오
 }
