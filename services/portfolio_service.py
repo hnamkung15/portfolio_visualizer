@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from datetime import timedelta, date
 from typing import List
 
-from models.transactions import TransactionType
+from models.account import Account, AccountCurrencyType
+from models.transactions import Transaction, TransactionType
 from services.market_data_service import price_lookup
+from services.plot.chart_service import total_portfolio_pie_chart
 from utils.time_utils import get_pt_yesterday, is_weekend
 from models.tickers import Ticker
 
@@ -308,3 +310,22 @@ def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
         )
 
     return portfolio_list, portfolio_totals
+
+
+def generate_portfolio_and_timeseries_data(db, currency_type):
+    accounts = db.query(Account).order_by(Account.order).all()
+    account_ids = [
+        account.id
+        for account in accounts
+        if account.account_currency_type == currency_type
+    ]
+
+    portfolio = Portfolio(db)
+    transactions = (
+        db.query(Transaction)
+        .filter(Transaction.account_id.in_(account_ids))
+        .order_by(Transaction.date.asc(), Transaction.id.asc())
+        .all()
+    )
+    timeseries = build_portfolio_timeseries(transactions, portfolio)
+    return portfolio, timeseries

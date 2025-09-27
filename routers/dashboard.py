@@ -13,7 +13,7 @@ from services.account_service import (
     get_checking_account_networth,
     get_stock_account_networth,
 )
-from services.plot.chart_service import pie_chart
+from services.plot.chart_service import total_portfolio_pie_chart
 from services.plot.plot_service import (
     realized_gain_graph,
     return_graph,
@@ -24,6 +24,7 @@ from services.plot.plot_service import (
 from services.portfolio_service import (
     Portfolio,
     build_portfolio_timeseries,
+    generate_portfolio_and_timeseries_data,
     generate_portfolio_tabular_data,
 )
 from utils.time_utils import get_pt_now
@@ -55,12 +56,13 @@ def get_exchange_rate():
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request, db: Session = Depends(get_db)):
     fx_rate, fx_as_of = get_exchange_rate()
-    usd_graphs_html, usd_portfolio_list, usd_portfolio_totals = generate_portfolio(
-        db, AccountCurrencyType.USD
+    usd_graphs_html, usd_portfolio_list, usd_portfolio_totals = (
+        generate_individual_portfolio_data(db, AccountCurrencyType.USD)
     )
-    krw_graphs_html, krw_portfolio_list, krw_portfolio_totals = generate_portfolio(
-        db, AccountCurrencyType.KRW
+    krw_graphs_html, krw_portfolio_list, krw_portfolio_totals = (
+        generate_individual_portfolio_data(db, AccountCurrencyType.KRW)
     )
+    total_graphs_html = generate_common_portfolio(db, fx_rate)
 
     usd_val = usd_portfolio_totals["valuation"]
     krw_val = krw_portfolio_totals["valuation"]
@@ -97,35 +99,37 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "krw_graphs_html": krw_graphs_html,
             "krw_portfolio_list": krw_portfolio_list,
             "krw_portfolio_totals": krw_portfolio_totals,
+            "total_graphs_html": total_graphs_html,
         },
     )
 
 
-def generate_portfolio(db, currency_type):
-    accounts = db.query(Account).order_by(Account.order).all()
-    account_ids = [
-        account.id
-        for account in accounts
-        if account.account_currency_type == currency_type
+def generate_common_portfolio(db, fx_rate):
+    usd_portfolio, usd_timeseries = generate_portfolio_and_timeseries_data(
+        db, AccountCurrencyType.USD
+    )
+    krw_portfolio, krw_timeseries = generate_portfolio_and_timeseries_data(
+        db, AccountCurrencyType.KRW
+    )
+
+    return [
+        total_portfolio_pie_chart(usd_timeseries, krw_timeseries, fx_rate).to_html(
+            full_html=False
+        )
     ]
 
-    portfolio = Portfolio(db)
-    transactions = (
-        db.query(Transaction)
-        .filter(Transaction.account_id.in_(account_ids))
-        .order_by(Transaction.date.asc(), Transaction.id.asc())
-        .all()
-    )
-    result = build_portfolio_timeseries(transactions, portfolio)
+
+def generate_individual_portfolio_data(db, currency_type):
+    portfolio, timeseries = generate_portfolio_and_timeseries_data(db, currency_type)
     graph_funcs = [
-        pie_chart,
-        # total_capital_and_cash_graph,
+        # pie_chart,
+        total_capital_and_cash_graph,
     ]
     graphs_html = [
-        func(currency_type, result).to_html(full_html=False) for func in graph_funcs
+        func(currency_type, timeseries).to_html(full_html=False) for func in graph_funcs
     ]
     portfolio_list, portfolio_totals = generate_portfolio_tabular_data(
-        db, portfolio, result.end_date
+        db, portfolio, timeseries.end_date
     )
 
     return graphs_html, portfolio_list, portfolio_totals

@@ -15,7 +15,7 @@ common_pie_properties = {
 }
 
 
-def pie_chart(currency_type, result):
+def total_portfolio_pie_chart(usd_result, krw_result, fx_rate):
     data = [
         go.Pie(
             values=[20, 40],

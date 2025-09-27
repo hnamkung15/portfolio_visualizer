@@ -52,6 +52,14 @@
     </div>
   </div>
   <div class="card">
+    <h2 class="section-title flex-between">종합 그래프</h2>
+    {% for graph in total_graphs_html %}
+      <div class="w-[800px] card">
+        <div>{{ graph|safe }}</div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="card">
     <h2 class="section-title">Portfolio (USD)</h2>
     {{ portfolio_macros.render_portfolio_table(usd_portfolio_list, usd_portfolio_totals, "$", "{:,.2f}") }}
   </div>
