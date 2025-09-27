@@ -2,6 +2,8 @@ from fastapi import APIRouter, Request, Form, Depends, Body
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from db import get_db
+from routers.auth import get_current_user
+from models.user import User
 
 from models.account import (
     Account,
@@ -19,8 +21,8 @@ router = APIRouter()
 
 
 @router.get("/account_setting", response_class=HTMLResponse)
-def account_setting(request: Request, db: Session = Depends(get_db)):
-    accounts = db.query(Account).order_by(Account.order).all()
+def account_setting(request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    accounts = db.query(Account).filter(Account.user_id == current_user.id).order_by(Account.order).all()
     return templates.TemplateResponse(
         "account_setting/accounts.html",
         {

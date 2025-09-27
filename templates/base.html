@@ -22,15 +22,24 @@
   </head>
   <body class="bg-gray-50 text-sm">
     <!-- Navigation -->
-    <nav class="bg-white px-6 py-4 shadow-sm">
-      <a href="/dashboard"
-         class="{% if active == 'dashboard' %}active{% endif %}">대시보드</a>
-      <a href="/account_setting"
-         class="{% if active == 'account_setting' %}active{% endif %}">계좌 관리</a>
-      <a href="/account_dashboard"
-         class="{% if active == 'account_dashboard' %}active{% endif %}">계좌 정보</a>
-      <a href="/transactions"
-         class="{% if active == 'transactions' %}active{% endif %}">거래 내역</a>
+    <nav class="bg-white px-6 py-4 shadow-sm flex justify-between items-center">
+      <div>
+        <a href="/dashboard"
+           class="{% if active == 'dashboard' %}active{% endif %}">대시보드</a>
+        <a href="/account_setting"
+           class="{% if active == 'account_setting' %}active{% endif %}">계좌 관리</a>
+        <a href="/account_dashboard"
+           class="{% if active == 'account_dashboard' %}active{% endif %}">계좌 정보</a>
+        <a href="/transactions"
+           class="{% if active == 'transactions' %}active{% endif %}">거래 내역</a>
+      </div>
+      <div>
+        <form method="post" action="/logout" class="inline">
+          <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
+            로그아웃
+          </button>
+        </form>
+      </div>
     </nav>
     <hr />
     <!-- Main Content Area -->

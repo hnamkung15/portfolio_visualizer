@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from db import get_db
+from routers.auth import get_current_user
+from models.user import User
 from models.account import Account
 from models.transactions import Transaction, TransactionType
 from datetime import date
@@ -22,15 +24,16 @@ def view_transactions(
     request: Request,
     account_id: int = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    accounts = db.query(Account).order_by(Account.order).all()
+    accounts = db.query(Account).filter(Account.user_id == current_user.id).order_by(Account.order).all()
     transactions = []
     selected_account = None
     latest_type = ""
     latest_date = ""
 
     if account_id:
-        selected_account = db.query(Account).get(account_id)
+        selected_account = db.query(Account).filter(Account.user_id == current_user.id, Account.id == account_id).first()
         transactions = (
             db.query(Transaction)
             .filter(Transaction.account_id == account_id)

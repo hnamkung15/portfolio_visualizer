@@ -1,5 +1,6 @@
 # Import all models to ensure they are registered with SQLAlchemy
 from .base import Base
+from .user import User
 from .account import Account, AccountType, AssetType
 from .tickers import Ticker
 from .transactions import Transaction, TransactionType
@@ -8,6 +9,7 @@ from .synclog import SyncLog
 
 __all__ = [
     "Base",
+    "User",
     "Account", 
     "AccountType",
     "AssetType",

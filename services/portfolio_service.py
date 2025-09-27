@@ -311,8 +311,8 @@ def generate_portfolio_tabular_data(db, portfolio: Portfolio, end_date):
     return portfolio_list, portfolio_totals
 
 
-def generate_portfolio_and_timeseries_data(db, currency_type):
-    accounts = db.query(Account).order_by(Account.order).all()
+def generate_portfolio_and_timeseries_data(db, currency_type, user_id):
+    accounts = db.query(Account).filter(Account.user_id == user_id).order_by(Account.order).all()
     account_ids = [
         account.id
         for account in accounts

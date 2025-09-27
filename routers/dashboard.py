@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
-from sqlalchemy import func, or_
+from sqlalchemy import false, func, or_, true
 from sqlalchemy.orm import Session
 from db import get_db
+from routers.auth import get_current_user
+from models.user import User
 import requests
 from datetime import datetime, timedelta
 from fastapi.templating import Jinja2Templates
@@ -53,16 +55,58 @@ def get_exchange_rate():
     return usd_krw, get_pt_now().strftime("%Y-%m-%d %H:%M:%S (PT)")
 
 
+def no_transactions(db, user_id):
+    """Check if user has any transactions."""
+    # Check if user has any accounts
+    user_accounts = db.query(Account).filter(Account.user_id == user_id).all()
+    if not user_accounts:
+        return True
+
+    # Check if any of the user's accounts have transactions
+    account_ids = [account.id for account in user_accounts]
+    transaction_count = (
+        db.query(Transaction).filter(Transaction.account_id.in_(account_ids)).count()
+    )
+    return transaction_count == 0
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
-def dashboard(request: Request, db: Session = Depends(get_db)):
+def dashboard(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     fx_rate, fx_as_of = get_exchange_rate()
+    if no_transactions(db, current_user.id):
+        return templates.TemplateResponse(
+            "dashboard/dashboard.html",
+            {
+                "request": request,
+                "active": "dashboard",
+                "fx_rate": fx_rate,
+                "fx_as_of": fx_as_of,
+                "total_usd": 0,
+                "total_krw": 0,
+                "usd_assets": {},
+                "krw_assets": {},
+                "usd_graphs_html": [],
+                "usd_portfolio_list": [],
+                "usd_portfolio_totals": {},
+                "krw_graphs_html": [],
+                "krw_portfolio_list": [],
+                "krw_portfolio_totals": {},
+                "total_graphs_html": [],
+                "no_transaction": true,
+            },
+        )
+
     usd_graphs_html, usd_portfolio_list, usd_portfolio_totals = (
-        generate_individual_portfolio_data(db, AccountCurrencyType.USD)
+        generate_individual_portfolio_data(db, AccountCurrencyType.USD, current_user.id)
     )
     krw_graphs_html, krw_portfolio_list, krw_portfolio_totals = (
-        generate_individual_portfolio_data(db, AccountCurrencyType.KRW)
+        generate_individual_portfolio_data(db, AccountCurrencyType.KRW, current_user.id)
     )
-    total_graphs_html = generate_common_portfolio(db, fx_rate)
+    total_graphs_html = generate_common_portfolio(db, fx_rate, current_user.id)
 
     usd_val = usd_portfolio_totals["valuation"]
     krw_val = krw_portfolio_totals["valuation"]
@@ -100,16 +144,17 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "krw_portfolio_list": krw_portfolio_list,
             "krw_portfolio_totals": krw_portfolio_totals,
             "total_graphs_html": total_graphs_html,
+            "no_transaction": false,
         },
     )
 
 
-def generate_common_portfolio(db, fx_rate):
+def generate_common_portfolio(db, fx_rate, user_id):
     usd_portfolio, usd_timeseries = generate_portfolio_and_timeseries_data(
-        db, AccountCurrencyType.USD
+        db, AccountCurrencyType.USD, user_id
     )
     krw_portfolio, krw_timeseries = generate_portfolio_and_timeseries_data(
-        db, AccountCurrencyType.KRW
+        db, AccountCurrencyType.KRW, user_id
     )
 
     return [
@@ -119,8 +164,10 @@ def generate_common_portfolio(db, fx_rate):
     ]
 
 
-def generate_individual_portfolio_data(db, currency_type):
-    portfolio, timeseries = generate_portfolio_and_timeseries_data(db, currency_type)
+def generate_individual_portfolio_data(db, currency_type, user_id):
+    portfolio, timeseries = generate_portfolio_and_timeseries_data(
+        db, currency_type, user_id
+    )
     graph_funcs = [
         # pie_chart,
         total_capital_and_cash_graph,

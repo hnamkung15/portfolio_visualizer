@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from db import get_db
+from routers.auth import get_current_user
+from models.user import User
 from models.transactions import Transaction
 from models.account import Account, AccountType
 
@@ -28,10 +30,11 @@ router = APIRouter()
 @router.get("/account_dashboard", response_class=HTMLResponse)
 def view_transactions(
     request: Request,
+    current_user: User = Depends(get_current_user),
     account_id: int = None,
     db: Session = Depends(get_db),
 ):
-    accounts = db.query(Account).order_by(Account.order).all()
+    accounts = db.query(Account).filter(Account.user_id == current_user.id).order_by(Account.order).all()
     if account_id is None:
         return templates.TemplateResponse(
             "account_dashboard/account_dashboard.html",
@@ -50,7 +53,7 @@ def view_transactions(
     transactions = []
     selected_account = None
 
-    selected_account = db.query(Account).get(account_id)
+    selected_account = db.query(Account).filter(Account.user_id == current_user.id, Account.id == account_id).first()
     transactions = (
         db.query(Transaction)
         .filter(Transaction.account_id == account_id)

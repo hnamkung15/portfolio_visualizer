@@ -15,163 +15,190 @@
 {% set percent_format = "{:.1f}%" %}
 {% block content %}
   <h2 class="section-title">대시보드</h2>
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="card-dashboard">
-      <div class="card-label">USD → KRW</div>
-      <div class="card-rate">{{ fx_rate }}</div>
-      <div class="card-subtext">{{ fx_as_of }}</div>
-    </div>
-    <!-- 총 자산 -->
-    <div class="card-dashboard">
-      <div class="card-label">총 자산</div>
-      <div class="card-value total">
-        {{ usd_format.format(total_usd) }}
-        <br>
-        {{ krw_format_macro(total_krw) }}
+  {% if no_transaction %}
+    <!-- Empty state for users with no transactions -->
+    <div class="card text-center py-12">
+      <div class="text-gray-500 mb-4">
+        <svg class="mx-auto h-16 w-16 text-gray-400"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">포트폴리오가 비어있습니다</h3>
+      <p class="text-gray-500 mb-6">계좌를 추가하고 거래 내역을 입력하여 포트폴리오를 시작하세요.</p>
+      <div class="space-x-4">
+        <a href="/account_setting"
+           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+          계좌 추가하기
+        </a>
+        <a href="/transactions"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          거래 내역 추가하기
+        </a>
       </div>
     </div>
-    <!-- 자산 in USD -->
-    <div class="card-dashboard">
-      <div class="card-label">자산 in USD</div>
-      <div class="card-value usd">
-        {{ usd_format.format(usd_assets.amount_usd) }}
-        <br>
-        {{ krw_format_macro(usd_assets.amount_krw) }}
+  {% else %}
+    <!-- Normal dashboard content for users with data -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="card-dashboard">
+        <div class="card-label">USD → KRW</div>
+        <div class="card-rate">{{ fx_rate }}</div>
+        <div class="card-subtext">{{ fx_as_of }}</div>
       </div>
-      <div class="card-subtext">({{ percent_format.format(usd_assets.percent) }})</div>
+      <!-- 총 자산 -->
+      <div class="card-dashboard">
+        <div class="card-label">총 자산</div>
+        <div class="card-value total">
+          {{ usd_format.format(total_usd) }}
+          <br>
+          {{ krw_format_macro(total_krw) }}
+        </div>
+      </div>
+      <!-- 자산 in USD -->
+      <div class="card-dashboard">
+        <div class="card-label">자산 in USD</div>
+        <div class="card-value usd">
+          {{ usd_format.format(usd_assets.amount_usd) }}
+          <br>
+          {{ krw_format_macro(usd_assets.amount_krw) }}
+        </div>
+        <div class="card-subtext">({{ percent_format.format(usd_assets.percent) }})</div>
+      </div>
+      <!-- 자산 in KRW -->
+      <div class="card-dashboard">
+        <div class="card-label">자산 in KRW</div>
+        <div class="card-value krw">
+          {{ usd_format.format(krw_assets.amount_usd) }}
+          <br>
+          {{ krw_format_macro(krw_assets.amount_krw) }}
+        </div>
+        <div class="card-subtext">({{ percent_format.format(krw_assets.percent) }})</div>
+      </div>
     </div>
-    <!-- 자산 in KRW -->
-    <div class="card-dashboard">
-      <div class="card-label">자산 in KRW</div>
-      <div class="card-value krw">
-        {{ usd_format.format(krw_assets.amount_usd) }}
-        <br>
-        {{ krw_format_macro(krw_assets.amount_krw) }}
-      </div>
-      <div class="card-subtext">({{ percent_format.format(krw_assets.percent) }})</div>
+    <div class="card">
+      <h2 class="section-title flex-between">종합 그래프</h2>
+      {% for graph in total_graphs_html %}
+        <div class="w-[800px] card">
+          <div>{{ graph|safe }}</div>
+        </div>
+      {% endfor %}
     </div>
-  </div>
-  <div class="card">
-    <h2 class="section-title flex-between">종합 그래프</h2>
-    {% for graph in total_graphs_html %}
-      <div class="w-[800px] card">
-        <div>{{ graph|safe }}</div>
-      </div>
-    {% endfor %}
-  </div>
-  <div class="card">
-    <h2 class="section-title">Portfolio (USD)</h2>
-    {{ portfolio_macros.render_portfolio_table(usd_portfolio_list, usd_portfolio_totals, "$", "{:,.2f}") }}
-  </div>
-  <div class="card">
-    <h2 class="section-title">Portfolio (KRW)</h2>
-    {{ portfolio_macros.render_portfolio_table(krw_portfolio_list, krw_portfolio_totals, "₩", "{:,.0f}") }}
-  </div>
-  <div class="card">
-    <h2 class="section-title flex-between">USD 그래프</h2>
-    {% for graph in usd_graphs_html %}
-      <div class="w-[800px] card">
-        <div>{{ graph|safe }}</div>
-      </div>
-    {% endfor %}
-  </div>
-  <div class="card">
-    <h2 class="section-title flex-between">KRW 그래프</h2>
-    {% for graph in krw_graphs_html %}
-      <div class="w-[800px] card">
-        <div>{{ graph|safe }}</div>
-      </div>
-    {% endfor %}
-  </div>
-  <div class="card">
-    <div class="section-title">USD 계좌</div>
-    <table class="table-dashboard">
-      <thead>
-        <tr>
-          <th class="text-left">은행</th>
-          <th class="text-left">계좌명</th>
-          <th class="border-r-2">잔액(USD)</th>
-          <th class="bg-blue-50">현금</th>
-          <th class="bg-blue-50">적금</th>
-          <th class="bg-blue-50">채권</th>
-          <th class="bg-blue-50 border-r-2 border-gray-300">주식</th>
-          <th class="border-r-2">환산(KRW)</th>
-          <th class="bg-yellow-50">투자금액(USD)</th>
-          <th class="bg-yellow-50">수익금액(USD)</th>
-          <th class="bg-yellow-50 border-r-2 border-gray-300">수익률(%)</th>
-          <th>
-            환율 효과(%)
-            <br>
-            <span class="text-xs text-gray-500">(평균환율)</span>
-          </th>
-          <th>환율고려 수익금액(KRW)</th>
-          <th>환율고려 수익률(%)</th>
-        </tr>
-      </thead>
-      <tbody id="usd_table">
-      </tbody>
-      <tfoot class="bg-gray-100 font-semibold">
-        <tr>
-          <td colspan="2">총계</td>
-          <td id="usd_sum_usd"></td>
-          <td id="usd_sum_cash"></td>
-          <td id="usd_sum_saving"></td>
-          <td id="usd_sum_bond"></td>
-          <td id="usd_sum_stock"></td>
-          <td id="usd_sum_krw"></td>
-          <td id="usd_sum_invested_usd"></td>
-          <td id="usd_sum_return_amt"></td>
-          <td id="usd_sum_return_pct"></td>
-          <td id="usd_sum_fx_effect_pct">-</td>
-          <td id="usd_sum_fx_return_amt">!</td>
-          <td id="usd_sum_fx_return_pct">!</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-  <div class="card">
-    <div class="section-title">KRW 계좌</div>
-    <table class="table-dashboard">
-      <thead>
-        <tr>
-          <th class="text-left">은행</th>
-          <th class="text-left">계좌명</th>
-          <th class="border-r-2">잔액(KRW)</th>
-          <!-- Breakdown 컬럼 -->
-          <th class="bg-blue-50">현금</th>
-          <th class="bg-blue-50">적금</th>
-          <th class="bg-blue-50">채권</th>
-          <th class="bg-blue-50 border-r-2">주식</th>
-          <th class="border-r-2">환산(USD)</th>
-          <!-- 수익 관련 컬럼 -->
-          <th class="bg-yellow-50">투자금액(KRW)</th>
-          <th class="bg-yellow-50">수익금액(KRW)</th>
-          <th class="bg-yellow-50 border-r-2">수익률(%)</th>
-        </tr>
-      </thead>
-      <tbody id="krw_table">
-      </tbody>
-      <tfoot class="bg-gray-100 font-semibold">
-        <tr>
-          <td colspan="2">총계</td>
-          <td id="krw_sum_krw"></td>
-          <td id="krw_sum_cash"></td>
-          <td id="krw_sum_saving"></td>
-          <td id="krw_sum_bond"></td>
-          <td id="krw_sum_stock"></td>
-          <td id="krw_sum_usd"></td>
-          <td id="krw_sum_invested_krw"></td>
-          <td id="krw_sum_return_amt"></td>
-          <td id="krw_sum_return_pct"></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-  <div class="card">
-    <div class="section-title">자산 카테고리 구성</div>
-    <canvas id="categoryPie" class="max-w-[400px] max-h-[400px]"></canvas>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-  <script src="{{ url_for('static', path='js/dashboard/dashboard.js') }}"></script>
+    <div class="card">
+      <h2 class="section-title">Portfolio (USD)</h2>
+      {{ portfolio_macros.render_portfolio_table(usd_portfolio_list, usd_portfolio_totals, "$", "{:,.2f}") }}
+    </div>
+    <div class="card">
+      <h2 class="section-title">Portfolio (KRW)</h2>
+      {{ portfolio_macros.render_portfolio_table(krw_portfolio_list, krw_portfolio_totals, "₩", "{:,.0f}") }}
+    </div>
+    <div class="card">
+      <h2 class="section-title flex-between">USD 그래프</h2>
+      {% for graph in usd_graphs_html %}
+        <div class="w-[800px] card">
+          <div>{{ graph|safe }}</div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="card">
+      <h2 class="section-title flex-between">KRW 그래프</h2>
+      {% for graph in krw_graphs_html %}
+        <div class="w-[800px] card">
+          <div>{{ graph|safe }}</div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="card">
+      <div class="section-title">USD 계좌</div>
+      <table class="table-dashboard">
+        <thead>
+          <tr>
+            <th class="text-left">은행</th>
+            <th class="text-left">계좌명</th>
+            <th class="border-r-2">잔액(USD)</th>
+            <th class="bg-blue-50">현금</th>
+            <th class="bg-blue-50">적금</th>
+            <th class="bg-blue-50">채권</th>
+            <th class="bg-blue-50 border-r-2 border-gray-300">주식</th>
+            <th class="border-r-2">환산(KRW)</th>
+            <th class="bg-yellow-50">투자금액(USD)</th>
+            <th class="bg-yellow-50">수익금액(USD)</th>
+            <th class="bg-yellow-50 border-r-2 border-gray-300">수익률(%)</th>
+            <th>
+              환율 효과(%)
+              <br>
+              <span class="text-xs text-gray-500">(평균환율)</span>
+            </th>
+            <th>환율고려 수익금액(KRW)</th>
+            <th>환율고려 수익률(%)</th>
+          </tr>
+        </thead>
+        <tbody id="usd_table">
+        </tbody>
+        <tfoot class="bg-gray-100 font-semibold">
+          <tr>
+            <td colspan="2">총계</td>
+            <td id="usd_sum_usd"></td>
+            <td id="usd_sum_cash"></td>
+            <td id="usd_sum_saving"></td>
+            <td id="usd_sum_bond"></td>
+            <td id="usd_sum_stock"></td>
+            <td id="usd_sum_krw"></td>
+            <td id="usd_sum_invested_usd"></td>
+            <td id="usd_sum_return_amt"></td>
+            <td id="usd_sum_return_pct"></td>
+            <td id="usd_sum_fx_effect_pct">-</td>
+            <td id="usd_sum_fx_return_amt">!</td>
+            <td id="usd_sum_fx_return_pct">!</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="card">
+      <div class="section-title">KRW 계좌</div>
+      <table class="table-dashboard">
+        <thead>
+          <tr>
+            <th class="text-left">은행</th>
+            <th class="text-left">계좌명</th>
+            <th class="border-r-2">잔액(KRW)</th>
+            <!-- Breakdown 컬럼 -->
+            <th class="bg-blue-50">현금</th>
+            <th class="bg-blue-50">적금</th>
+            <th class="bg-blue-50">채권</th>
+            <th class="bg-blue-50 border-r-2">주식</th>
+            <th class="border-r-2">환산(USD)</th>
+            <!-- 수익 관련 컬럼 -->
+            <th class="bg-yellow-50">투자금액(KRW)</th>
+            <th class="bg-yellow-50">수익금액(KRW)</th>
+            <th class="bg-yellow-50 border-r-2">수익률(%)</th>
+          </tr>
+        </thead>
+        <tbody id="krw_table">
+        </tbody>
+        <tfoot class="bg-gray-100 font-semibold">
+          <tr>
+            <td colspan="2">총계</td>
+            <td id="krw_sum_krw"></td>
+            <td id="krw_sum_cash"></td>
+            <td id="krw_sum_saving"></td>
+            <td id="krw_sum_bond"></td>
+            <td id="krw_sum_stock"></td>
+            <td id="krw_sum_usd"></td>
+            <td id="krw_sum_invested_krw"></td>
+            <td id="krw_sum_return_amt"></td>
+            <td id="krw_sum_return_pct"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="card">
+      <div class="section-title">자산 카테고리 구성</div>
+      <canvas id="categoryPie" class="max-w-[400px] max-h-[400px]"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="{{ url_for('static', path='js/dashboard/dashboard.js') }}"></script>
+  {% endif %}
 {% endblock %}

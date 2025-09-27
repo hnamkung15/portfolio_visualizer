@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 import enum
 from models.base import Base
@@ -127,6 +127,7 @@ class Account(Base):
     __tablename__ = "accounts"
     id = Column(Integer, primary_key=True)
     order = Column(Integer, default=0)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     owner = Column(Enum(Owner), nullable=False)
     bank_name = Column(Enum(BankName), nullable=False)
@@ -144,3 +145,4 @@ class Account(Base):
     transactions = relationship(
         "Transaction", back_populates="account", cascade="all, delete"
     )
+    user = relationship("User", back_populates="accounts")
