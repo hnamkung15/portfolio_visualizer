@@ -34,7 +34,7 @@ router = APIRouter()
 
 def get_exchange_rate():
     url = "https://api.manana.kr/exchange/rate.json"
-    resp = requests.get(url, timeout=5)
+    resp = requests.get(url, timeout=10)
     resp.raise_for_status()
     data = resp.json()
 

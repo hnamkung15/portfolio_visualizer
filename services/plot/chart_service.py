@@ -39,8 +39,8 @@ def pie_chart(currency_type, result):
     fig = go.Figure(data=data)
     fig.update_layout(
         title="ABC",
-        width=600,
         height=600,
+        width=600,
         shapes=[
             # Add a rectangle border around the entire figure
             {
