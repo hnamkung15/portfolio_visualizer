@@ -1,11 +1,12 @@
 import plotly.graph_objs as go
 
 from models.tickers import Ticker
+from services.plot.utils import COLORS
 from services.portfolio_service import Portfolio
 
 offset = 0.17
 inner_domain = {"x": [offset, 1 - offset], "y": [offset, 1 - offset]}
-inner_hole = 0.5
+inner_hole = 0.3
 outer_domain = {"x": [0, 1], "y": [0, 1]}
 outer_hole = 0.7
 common_pie_properties = {
@@ -13,9 +14,42 @@ common_pie_properties = {
     "sort": False,
     "textinfo": "percent+label",
     "textposition": "inside",
-    "textfont": dict(size=15, color="black"),
     "showlegend": False,
+    # "insidetextorientation": "horizontal",
+    "textfont": dict(size=20, color="black"),
+    "insidetextfont": dict(size=20, color="black"),
+    "hoverinfo": "label+percent+text",
+    "hoverlabel": {
+        "font": dict(size=18, color="black"),  # Increase font size
+        "bgcolor": "white",  # Background color for hover labels
+        "bordercolor": "black",  # Border color for hover labels
+    },
 }
+
+
+def format_krw(usd_value, fx_rate):
+    # KRW 금액 계산
+    krw_value = int(usd_value * fx_rate)
+
+    # KRW 금액이 1억 이상일 때, "억"과 "천"을 구분하여 출력
+    if krw_value >= 100000000:
+        billion = krw_value // 100000000  # 1억 단위
+        remainder = krw_value % 100000000  # 1억을 제외한 나머지 금액
+
+        # 1만원 단위로 나누기
+        ten_thousand = remainder // 10000  # 나머지를 만원 단위로 나눠서 천 단위 계산
+
+        if ten_thousand > 0:
+            return f"₩{billion}억 {ten_thousand}천만원"
+        else:
+            return f"₩{billion}억"
+    else:
+        # 1억 미만일 경우 천 단위로 출력 (만원 단위)
+        return f"₩{krw_value // 10000}만원"
+
+
+def format_usd(usd_value):
+    return f"${int(usd_value):,}"
 
 
 def total_portfolio_pie_chart(
@@ -60,6 +94,7 @@ def total_portfolio_pie_chart(
 
     category_labels = []
     category_values = []
+    hovertext = []
     for key in [
         "Individual Stocks",
         "S&P 500",
@@ -68,8 +103,10 @@ def total_portfolio_pie_chart(
         "Dividend Stocks",
         "Stable Assets",
     ]:
+        usd_value = category_totals[key]
+        category_values.append(usd_value)
         category_labels.append(key)
-        category_values.append(category_totals[key])
+        hovertext.append(f"{format_usd(usd_value)}<br>{format_krw(usd_value, fx_rate)}")
 
     # category_values = list(category_totals.values())
     # category_labels = list()
@@ -86,7 +123,17 @@ def total_portfolio_pie_chart(
             labels=category_labels,
             domain=inner_domain,
             hole=inner_hole,
-            marker={"colors": ["#CB4335", "#2E86C1", "#F1948A", "#5DADE2"]},
+            marker={
+                "colors": [
+                    COLORS["pastel_orange"],
+                    COLORS["green"],
+                    COLORS["light_blue"],
+                    COLORS["tomato"],
+                    COLORS["peach_puff"],
+                    COLORS["blue"],
+                ]
+            },
+            hovertext=hovertext,
             **common_pie_properties,
         ),
         # go.Pie(
