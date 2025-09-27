@@ -24,3 +24,4 @@ COLORS = {
     "cyan": "#00acc1",
     "gold": "#fdd835",
 }
+

@@ -9,6 +9,7 @@ class Ticker(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     symbol = Column(String(20), unique=True, nullable=False)  # 예: "SCHD", "VOO"
     name = Column(String(100), nullable=True)  # ETF/주식 풀네임
+    category = Column(String(100), nullable=True)  # 카테고리 for pie chart
     exchange = Column(String(50), nullable=True)  # 거래소 (NYSE, NASDAQ 등)
     currency = Column(String(10), nullable=True)  # USD, KRW 등
     last_data_sync = Column(Date, nullable=True)
