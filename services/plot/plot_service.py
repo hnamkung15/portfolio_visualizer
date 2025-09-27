@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 from models.account import AccountCurrencyType
 from services.portfolio_service import PortfolioTimeSeries
-from utils.utils import COLORS
+from services.plot.utils import COLORS
 
 
 # ===============================

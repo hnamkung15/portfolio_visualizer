@@ -31,69 +31,96 @@ def total_portfolio_pie_chart(
         for t in db.query(Ticker).filter(Ticker.symbol.in_(symbols)).all()
     }
 
-    for k, v in usd_portfolio.holdings.items():
-        if v["quantity"] != 0:
-            print(
-                k,
-                "/",
-                ticker_map[k],
-                "/",
-                category_map[k],
-                float(v["quantity"]) * float(v["avg_cost"]),
-            )
-    print(usd_portfolio.cash)
-    for k, v in krw_portfolio.holdings.items():
-        if v["quantity"] != 0:
-            print(
-                k,
-                "/",
-                ticker_map[k],
-                "/",
-                category_map[k],
-                float(v["quantity"]) * float(v["avg_cost"]),
-            )
-    print(krw_portfolio.cash)
+    # 카테고리별 총합을 저장할 딕셔너리
+    category_totals = {}
+    individual_stock_totals = []  # 개별 종목들의 금액을 저장할 리스트
+
+    # 각 포트폴리오에서 금액을 계산
+    for portfolio, currency in [(usd_portfolio, "USD"), (krw_portfolio, "KRW")]:
+        for k, v in portfolio.holdings.items():
+            if v["quantity"] != 0:
+                total_value = float(v["quantity"]) * float(v["avg_cost"])
+                total_value_in_usd = (
+                    total_value if currency == "USD" else total_value / fx_rate
+                )
+                if currency == "USD":
+                    individual_stock_totals.append(
+                        (k, total_value_in_usd)
+                    )  # 개별 종목 금액 추가
+                # 카테고리별 합산
+                category = category_map[k]
+                if category not in category_totals:
+                    category_totals[category] = 0
+                category_totals[category] += total_value_in_usd  # 카테고리 총합 추가
+
+    # 현금도 카테고리에 포함
+    usd_cash_in_usd = usd_portfolio.cash
+    krw_cash_in_usd = krw_portfolio.cash / fx_rate
+    category_totals["Stable Assets"] = usd_cash_in_usd + krw_cash_in_usd
+
+    category_labels = []
+    category_values = []
+    for key in [
+        "Individual Stocks",
+        "S&P 500",
+        "Nasdaq",
+        "Big Tech",
+        "Dividend Stocks",
+        "Stable Assets",
+    ]:
+        category_labels.append(key)
+        category_values.append(category_totals[key])
+
+    # category_values = list(category_totals.values())
+    # category_labels = list()
+    # print(category_labels)
+
+    # # 바깥쪽 Pie (개별 종목 금액)
+    # individual_stock_values = [v for _, v in individual_stock_totals]
+    # individual_stock_labels = [ticker_map[k] for k, _ in individual_stock_totals]
+
+    # Pie 차트 데이터
     data = [
         go.Pie(
-            values=[20, 40],
-            labels=["Reds", "Blues"],
+            values=category_values,
+            labels=category_labels,
             domain=inner_domain,
             hole=inner_hole,
-            marker={"colors": ["#CB4335", "#2E86C1"]},
-            **common_pie_properties
+            marker={"colors": ["#CB4335", "#2E86C1", "#F1948A", "#5DADE2"]},
+            **common_pie_properties,
         ),
-        go.Pie(
-            values=[5, 15, 30, 10],
-            labels=["Medium Red", "Light Red", "Medium Blue", "Light Blue"],
-            domain=outer_domain,
-            hole=outer_hole,
-            marker={"colors": ["#EC7063", "#F1948A", "#5DADE2", "#85C1E9"]},
-            **common_pie_properties
-        ),
+        # go.Pie(
+        #     values=individual_stock_values,
+        #     labels=individual_stock_labels,
+        #     domain=outer_domain,
+        #     hole=outer_hole,
+        #     marker={"colors": ["#EC7063", "#F1948A", "#5DADE2", "#85C1E9"]},
+        #     **common_pie_properties,
+        # ),
     ]
 
-    # Create figure and show it
+    # 차트 레이아웃 설정
     fig = go.Figure(data=data)
     fig.update_layout(
-        title="ABC",
+        title="Portfolio Breakdown",
         height=600,
         width=600,
         shapes=[
-            # Add a rectangle border around the entire figure
             {
                 "type": "rect",
-                "xref": "paper",  # 'paper'는 전체 차트를 기준으로
+                "xref": "paper",
                 "yref": "paper",
                 "x0": 0,
                 "y0": 0,
                 "x1": 1,
                 "y1": 1,
-                "line": {"color": "black", "width": 2},  # 테두리 색상  # 테두리 두께
+                "line": {"color": "black", "width": 2},
             }
         ],
-    )  # 원하는 너비  # 원하는 높이
+        margin=dict(t=0, b=0, l=0, r=0),
+    )
+
     return fig
-    # fig.show()
 
 
 # fig = pie_chart("", "")
