@@ -3,10 +3,9 @@ from dataclasses import dataclass
 from datetime import timedelta, date
 from typing import List
 
-from models.account import Account, AccountCurrencyType
+from models.account import Account
 from models.transactions import Transaction, TransactionType
 from services.market_data_service import price_lookup
-from services.plot.chart_service import total_portfolio_pie_chart
 from utils.time_utils import get_pt_yesterday, is_weekend
 from models.tickers import Ticker
 

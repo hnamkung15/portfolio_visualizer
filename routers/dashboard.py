@@ -113,7 +113,7 @@ def generate_common_portfolio(db, fx_rate):
     )
 
     return [
-        total_portfolio_pie_chart(usd_timeseries, krw_timeseries, fx_rate).to_html(
+        total_portfolio_pie_chart(db, usd_portfolio, krw_portfolio, fx_rate).to_html(
             full_html=False
         )
     ]

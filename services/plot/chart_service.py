@@ -1,5 +1,8 @@
 import plotly.graph_objs as go
 
+from models.tickers import Ticker
+from services.portfolio_service import Portfolio
+
 offset = 0.17
 inner_domain = {"x": [offset, 1 - offset], "y": [offset, 1 - offset]}
 inner_hole = 0.5
@@ -15,7 +18,41 @@ common_pie_properties = {
 }
 
 
-def total_portfolio_pie_chart(usd_result, krw_result, fx_rate):
+def total_portfolio_pie_chart(
+    db, usd_portfolio: Portfolio, krw_portfolio: Portfolio, fx_rate
+):
+    symbols = list(usd_portfolio.holdings.keys()) + list(krw_portfolio.holdings.keys())
+    ticker_map = {
+        t.symbol: t.name
+        for t in db.query(Ticker).filter(Ticker.symbol.in_(symbols)).all()
+    }
+    category_map = {
+        t.symbol: t.category
+        for t in db.query(Ticker).filter(Ticker.symbol.in_(symbols)).all()
+    }
+
+    for k, v in usd_portfolio.holdings.items():
+        if v["quantity"] != 0:
+            print(
+                k,
+                "/",
+                ticker_map[k],
+                "/",
+                category_map[k],
+                float(v["quantity"]) * float(v["avg_cost"]),
+            )
+    print(usd_portfolio.cash)
+    for k, v in krw_portfolio.holdings.items():
+        if v["quantity"] != 0:
+            print(
+                k,
+                "/",
+                ticker_map[k],
+                "/",
+                category_map[k],
+                float(v["quantity"]) * float(v["avg_cost"]),
+            )
+    print(krw_portfolio.cash)
     data = [
         go.Pie(
             values=[20, 40],
