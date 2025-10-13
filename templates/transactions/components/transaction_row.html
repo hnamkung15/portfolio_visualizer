@@ -5,6 +5,7 @@
     {{ form_macros.td_select_editable("type", transaction_types, t.type.value, t.id, "updateTransaction") }}
     {{ form_macros.td_number_editable("amount", t.amount, t.id, "updateTransaction") }}
     {{ form_macros.td_input_editable("symbol", t.symbol, t.id, "updateTransaction") }}
+    {{ form_macros.td_text_static(t.ticker_name if t.ticker_name else "") }}
     {{ form_macros.td_number_editable("price", t.price, t.id, "updateTransaction") }}
     {{ form_macros.td_number_editable("quantity", t.quantity, t.id, "updateTransaction") }}
     {{ form_macros.td_number_editable("fee", t.fee, t.id, "updateTransaction") }}

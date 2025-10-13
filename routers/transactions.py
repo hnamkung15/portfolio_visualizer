@@ -7,6 +7,7 @@ from routers.auth import get_current_user
 from models.user import User
 from models.account import Account
 from models.transactions import Transaction, TransactionType
+from models.tickers import Ticker
 from datetime import date
 from typing import Optional
 
@@ -42,6 +43,16 @@ def view_transactions(
         )
         annotate_with_balances(transactions, selected_account)
         annotate_with_quantities_by_symbol(transactions, selected_account)
+        
+        # Add ticker names to transactions
+        ticker_map = {}
+        symbols = [t.symbol for t in transactions if t.symbol]
+        if symbols:
+            tickers = db.query(Ticker).filter(Ticker.symbol.in_(symbols)).all()
+            ticker_map = {ticker.symbol: ticker.name for ticker in tickers}
+        
+        for t in transactions:
+            t.ticker_name = ticker_map.get(t.symbol, "") if t.symbol else ""
 
         if transactions:
             latest_type = transactions[-1].type
