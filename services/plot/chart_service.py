@@ -103,7 +103,6 @@ def total_portfolio_pie_chart(
         "S&P 500",
         "Nasdaq",
         "Individual Stocks",
-        "Big Tech",
         "Dividend Stocks",
         "Stable Assets",
     ]:
@@ -138,7 +137,6 @@ def total_portfolio_pie_chart(
                     COLORS["pastel_orange"],
                     COLORS["green"],
                     COLORS["light_blue"],
-                    COLORS["tomato"],
                     COLORS["peach_puff"],
                     COLORS["blue"],
                 ],
