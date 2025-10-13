@@ -100,9 +100,9 @@ def total_portfolio_pie_chart(
     individual_hovertext = []
 
     for key in [
-        "Individual Stocks",
         "S&P 500",
         "Nasdaq",
+        "Individual Stocks",
         "Big Tech",
         "Dividend Stocks",
         "Stable Assets",
@@ -114,7 +114,11 @@ def total_portfolio_pie_chart(
             category_hovertext.append(
                 f"{format_usd(usd_value)}<br>{format_krw(usd_value, fx_rate)}"
             )
-            for ind_key, value in individuals[key].items():
+            # Sort individuals within this category by value (high to low)
+            sorted_individuals = sorted(
+                individuals[key].items(), key=lambda x: x[1], reverse=True
+            )
+            for ind_key, value in sorted_individuals:
                 print(ind_key, value)
                 individual_labels.append(ind_key)
                 individual_values.append(value)

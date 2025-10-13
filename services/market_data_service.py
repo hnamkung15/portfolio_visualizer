@@ -6,7 +6,7 @@ import yfinance as yf
 from models.account import AssetType
 from models.price import Price
 from models.tickers import Ticker
-from utils.time_utils import get_pt_yesterday
+from utils.time_utils import get_pt_yesterday, active_date_until
 
 
 def get_current_symbol_type(symbol: str):
@@ -59,39 +59,47 @@ def not_searchable_symbol(symbol):
         "92206T105",
         "K55101DN7441",
         "SPAXX",
+        "Conviva",
     ]:
         return True
     return False
 
 
+# We use last_data_sync, not for last date data in price, but last "trial"
+# of requesting data.
+
+
 def download_ticker_data(db, ticker, start_date, end_date):
     symbol = ticker.symbol
-    print(
-        f"[market_data_service] download data for {symbol} from starting date ({start_date}) to yesterday ({end_date})"
-    )
     try:
         df = fdr.DataReader(symbol, str(start_date), str(end_date))
-        for idx, row in df.iterrows():
-            db.add(
-                Price(
-                    ticker_id=ticker.id,
-                    date=idx.date(),
-                    close=row["Close"],
-                    open=row.get("Open"),
-                    high=row.get("High"),
-                    low=row.get("Low"),
-                    volume=row.get("Volume"),
+        if len(df) > 0:
+            for idx, row in df.iterrows():
+                db.add(
+                    Price(
+                        ticker_id=ticker.id,
+                        date=idx.date(),
+                        close=row["Close"],
+                        open=row.get("Open"),
+                        high=row.get("High"),
+                        low=row.get("Low"),
+                        volume=row.get("Volume"),
+                    )
                 )
+            print(
+                f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, downloaded ({len(df)}) records"
             )
-        print(
-            f"[market_data_service] Successfully downloaded ({len(df)}) records for {symbol}"
-        )
+        else:
+            print(
+                f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, there is no record"
+            )
+        ticker.last_data_sync = end_date
+        db.commit()
     except Exception as e:
-        print(f"[Warning] Failed to backfill {symbol} from FDR: {e}")
+        print(
+            f"[Error] data download failed during {start_date} ~ {end_date} for {symbol}: {e}"
+        )
 
-    # Update last_data_sync timestamp to yesterday (the last date we downloaded)
-    ticker.last_data_sync = end_date
-    db.commit()
     return ticker
 
 
@@ -109,12 +117,48 @@ def load_ticker_into_cache(db, symbol: str, ticker):
     last_syncup_time[symbol] = ticker.last_data_sync
 
 
+def ensure_symbol_in_cache(db, symbol: str, active_date):
+    """
+    심볼이 캐시에 없는 경우:
+    - DB에서 ticker를 찾고
+    - 없으면 새로 생성 및 백필(backfill)
+    - 캐시에 적재
+    """
+    if symbol not in tracking_symbols:
+        ticker = db.query(Ticker).filter_by(symbol=symbol).first()
+
+        if not ticker:
+            ticker = Ticker(symbol=symbol)
+            db.add(ticker)
+            db.commit()
+            db.refresh(ticker)
+
+            # 최초 백필: 시작일 ~ 오늘
+            ticker = download_ticker_data(db, ticker, data_starting_date, active_date)
+
+        load_ticker_into_cache(db, symbol, ticker)
+
+
+def sync_symbol_if_needed(db, symbol: str, active_date):
+    """
+    심볼이 캐시에 있지만, 최신 데이터가 아닌 경우:
+    - 마지막 동기화 시점 이후부터 오늘까지 증분 업데이트
+    - 캐시 갱신
+    """
+    last_sync = last_syncup_time.get(symbol)
+
+    if last_sync is None or last_sync < active_date:
+        start_date = last_sync + timedelta(days=1) if last_sync else data_starting_date
+
+        ticker = db.query(Ticker).filter_by(symbol=symbol).first()
+        ticker = download_ticker_data(db, ticker, start_date, active_date)
+        load_ticker_into_cache(db, symbol, ticker)
+
+
 # This function is not supposed to return realtime price,
 # it only designed to return historical data. If date happens
 # to be the closed market date (e.g., weekends or holidays),
 # then return previous date data.
-
-
 def price_lookup(db, symbol: str, date):
     if not symbol:
         print("[ERROR] symbol is empty", date)
@@ -123,35 +167,18 @@ def price_lookup(db, symbol: str, date):
         print("[Warning] not_searchable_symbol", symbol, date)
         return None
 
-    yesterday = get_pt_yesterday()
+    active_date = active_date_until()
 
-    if date > yesterday:
+    if active_date < date:
         return None
 
-    # Ensure cache data for ticker is loaded.
-    # We can check this by looking into tracking_tickers
-    if symbol not in tracking_symbols:
-        ticker = db.query(Ticker).filter_by(symbol=symbol).first()
+    print("price_lookup", symbol, date)
 
-        # If symbol is not in Ticker table, it means, this is the first time
-        # seeing this symbol. We need to backfill data.
-        if not ticker:
-            ticker = Ticker(symbol=symbol)
-            db.add(ticker)
-            db.commit()
-            db.refresh(ticker)
-            ticker = download_ticker_data(db, ticker, data_starting_date, yesterday)
-
-        load_ticker_into_cache(db, symbol, ticker)
-
-    if last_syncup_time[symbol] is None or last_syncup_time[symbol] < yesterday:
-        start_date = (
-            last_syncup_time[symbol] + timedelta(days=1)
-            if last_syncup_time[symbol]
-            else data_starting_date
-        )
-        ticker = download_ticker_data(db, ticker, start_date, yesterday)
-        load_ticker_into_cache(db, symbol, ticker)
+    # below 2 functions are irrelevant to "date" value
+    # based on active_date, these functions try to make price data
+    # up to date.
+    ensure_symbol_in_cache(db, symbol, active_date)
+    sync_symbol_if_needed(db, symbol, active_date)
 
     if str(date) in price_cache[symbol]:
         return price_cache[symbol][str(date)]
