@@ -18,6 +18,7 @@ def get_current_symbol_type(symbol: str):
         "US91282CBQ33",
         "157450",
         "BIL",
+        "SGOV",
     ]:
         return AssetType.BOND
     return AssetType.STOCK
