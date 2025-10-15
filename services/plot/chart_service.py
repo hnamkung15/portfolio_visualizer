@@ -137,7 +137,7 @@ def total_portfolio_pie_chart(
                 "colors": [
                     COLORS["pastel_orange"],
                     COLORS["green"],
-                    COLORS["light_blue"],
+                    # COLORS["light_blue"],
                     COLORS["peach_puff"],
                     COLORS["blue"],
                 ],

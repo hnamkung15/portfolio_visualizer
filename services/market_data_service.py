@@ -28,15 +28,19 @@ def get_current_symbol_price(symbol: str, db) -> float:
     if symbol == "Conviva":
         return 1.23
     elif symbol == "US912810SN90":  # 미국 국채 50년 5월 15일 만기
-        return 4935.13 / 10
+        # return 4935.13 / 10
+        return 5073.75 / 10
     elif symbol == "US912810SQ22":  # 미국 국채 40년 8월 15일 만기
-        return 10735.57 / 17
+        # return 10735.57 / 17
+        return 10925.48 / 17
     elif symbol == "US91282CAJ09":  # 미국 국채 25년 8월 31일 만기
         return 9993.71 / 10
     elif symbol == "US91282CAT80":  # 미국 국채 25년 10월 31일 만기
-        return 9969.59 / 10
+        # return 9969.59 / 10
+        return 9994.58 / 10
     elif symbol == "US91282CBQ33":  # 미국 국채 26년 2월 28일 만기
-        return 9857.82 / 10
+        # return 9857.82 / 10
+        return 9882.45
 
     if symbol.isdigit():
         symbol = f"{symbol}"
@@ -165,7 +169,22 @@ def price_lookup(db, symbol: str, date):
         print("[ERROR] symbol is empty", date)
         return None
     if not_searchable_symbol(symbol):
+        if symbol == "US912810SN90":  # 미국 국채 50년 5월 15일 만기
+            # return 4935.13 / 10
+            return 5073.75 / 10
+        elif symbol == "US912810SQ22":  # 미국 국채 40년 8월 15일 만기
+            # return 10735.57 / 17
+            return 10925.48 / 17
+        elif symbol == "US91282CAJ09":  # 미국 국채 25년 8월 31일 만기
+            return 9993.71 / 10
+        elif symbol == "US91282CAT80":  # 미국 국채 25년 10월 31일 만기
+            # return 9969.59 / 10
+            return 9994.58 / 10
+        elif symbol == "US91282CBQ33":  # 미국 국채 26년 2월 28일 만기
+            # return 9857.82 / 10
+            return 9882.45 / 10
         print("[Warning] not_searchable_symbol", symbol, date)
+
         return None
 
     active_date = active_date_until()
