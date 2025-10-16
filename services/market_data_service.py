@@ -187,7 +187,10 @@ def price_lookup(db, symbol: str, date):
 
         return None
 
-    active_date = active_date_until()
+    # active_date = active_date_until()
+    # this failed due to VFFSX -- this value is finalized at the late night
+
+    active_date = get_pt_yesterday()
 
     if active_date < date:
         return None
@@ -216,7 +219,7 @@ def price_lookup(db, symbol: str, date):
     return None
 
 
-# df = fdr.DataReader("VFFSX", "2025-09-10", "2025-09-20")
+# df = fdr.DataReader("VFFSX", "2025-10-14", "2025-10-14")
 # print(df)
 
 # df = fdr.DataReader("USD/KRW", "2025-09-26", "2025-09-26")
