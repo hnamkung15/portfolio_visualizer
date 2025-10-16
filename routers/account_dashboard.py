@@ -61,6 +61,23 @@ def view_transactions(
         .all()
     )
 
+    # Handle empty transactions case
+    if len(transactions) == 0:
+        return templates.TemplateResponse(
+            "account_dashboard/account_dashboard.html",
+            {
+                "request": request,
+                "accounts": accounts,
+                "active": "account_dashboard",
+                "transactions": [],
+                "selected_account": selected_account,
+                "graphs_html": [],
+                "portfolio_list": [],
+                "portfolio_totals": {},
+                "has_transactions": False,
+            },
+        )
+
     if selected_account.account_type == AccountType.STOCK:
         graph_funcs = [
             return_graph,
@@ -100,5 +117,6 @@ def view_transactions(
             "portfolio_totals": portfolio_totals,
             "cash": portfolio.cash,
             "interest": portfolio.interest,
+            "has_transactions": True,
         },
     )

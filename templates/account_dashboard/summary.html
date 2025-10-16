@@ -2,7 +2,9 @@
 <h2 class="section-title">{{ selected_account.account_name }}</h2>
 {% set currency_symbol = "$" if selected_account.account_currency_type == "USD" else "₩" %}
 {% set num_format = "{:,.2f}" if selected_account.account_currency_type == "USD" else "{:,.0f}" %}
-{% if selected_account.account_type.value == "Stock" %}
+{% if has_transactions == False %}
+  <p class="message">거래내역이 없습니다. 거래를 추가해주세요.</p>
+{% elif selected_account.account_type.value == "Stock" %}
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <div class="card-dashboard">
       <div class="card-label">총 자산</div>
@@ -25,6 +27,17 @@
     <h2 class="section-title">Portfolio</h2>
     {{ portfolio_macros.render_portfolio_table(portfolio_list, portfolio_totals, currency_symbol, num_format) }}
   </div>
+  <div class="card">
+    <h2 class="section-title flex-between">
+      그래프
+      <!-- <button id="recompute-btn" class="btn btn-indigo">Recompute Graph Result</button> -->
+    </h2>
+    {% for graph in graphs_html %}
+      <div class="w-[800px] card">
+        <div>{{ graph|safe }}</div>
+      </div>
+    {% endfor %}
+  </div>
 {% else %}
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
     <div class="card-dashboard">
@@ -36,15 +49,15 @@
       <div class="card-value">{{ currency_symbol }}{{ num_format.format(interest) }}</div>
     </div>
   </div>
+  <div class="card">
+    <h2 class="section-title flex-between">
+      그래프
+      <!-- <button id="recompute-btn" class="btn btn-indigo">Recompute Graph Result</button> -->
+    </h2>
+    {% for graph in graphs_html %}
+      <div class="w-[800px] card">
+        <div>{{ graph|safe }}</div>
+      </div>
+    {% endfor %}
+  </div>
 {% endif %}
-<div class="card">
-  <h2 class="section-title flex-between">
-    그래프
-    <!-- <button id="recompute-btn" class="btn btn-indigo">Recompute Graph Result</button> -->
-  </h2>
-  {% for graph in graphs_html %}
-    <div class="w-[800px] card">
-      <div>{{ graph|safe }}</div>
-    </div>
-  {% endfor %}
-</div>

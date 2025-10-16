@@ -157,6 +157,22 @@ def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
     dividend_income = []
     total_income = []
 
+    # Handle empty transactions
+    if not transactions or len(transactions) == 0:
+        end_date = get_pt_yesterday()
+        return PortfolioTimeSeries(
+            timestamps=[],
+            cash=[],
+            invest=[],
+            valuation=[],
+            return_pct=[],
+            capital_gain=[],
+            interest_income=[],
+            dividend_income=[],
+            total_income=[],
+            end_date=end_date,
+        )
+
     start_date = transactions[0].date
     end_date = get_pt_yesterday()
     num_days = (end_date - start_date).days + 1
