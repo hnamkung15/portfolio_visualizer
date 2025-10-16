@@ -43,10 +43,10 @@ def default_layout(title, xaxis_title, yaxis_title, yaxis_tickformat):
             showticklabels=True,
             tickangle=0,
             gridcolor="rgba(0,0,0,0.8)",
-            dtick="M12",
+            dtick="M3",
             ticks="outside",  # Ticks 바깥쪽에 표시
             tickwidth=2,  # Tick의 두께
-            tickformat="%Y",
+            tickformat="%y-%m",
             ticklabelstandoff=15,
             minor=dict(
                 dtick="M1",  # Minor Ticks: 1개월 간격
@@ -85,16 +85,6 @@ def return_graph(account_currency_type, data: PortfolioTimeSeries):
         for v, i, ti in zip(d["valuation"], d["invest"], d["total_income"])
     ]
     fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=d["timestamps"],
-            y=(profit),
-            mode="lines",
-            name="평가 수익",
-            stackgroup="A",
-            line=dict(color=COLORS["pastel_green"], width=3),
-        )
-    )
 
     fig.add_trace(
         go.Scatter(
@@ -104,6 +94,17 @@ def return_graph(account_currency_type, data: PortfolioTimeSeries):
             name="확정 소득",
             stackgroup="A",
             line=dict(color=COLORS["pastel_orange"], width=3),
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=d["timestamps"],
+            y=(total_profit),
+            mode="lines",
+            name="평가 수익",
+            stackgroup="B",
+            line=dict(color=COLORS["pastel_green"], width=3),
         )
     )
 

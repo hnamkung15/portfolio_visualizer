@@ -171,7 +171,10 @@ def generate_individual_portfolio_data(db, currency_type, user_id):
     if timeseries is None:
         return [], [], {}
     graph_funcs = [
-        # pie_chart,
+        total_valuation_and_invest_graph,
+        return_graph,
+        return_pct_graph,
+        realized_gain_graph,
         total_capital_and_cash_graph,
     ]
     graphs_html = [
