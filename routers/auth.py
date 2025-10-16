@@ -69,7 +69,7 @@ def login(
         key="access_token",
         value=access_token,
         httponly=True,
-        max_age=1800  # 30 minutes
+        max_age=31536000  # 1 year (effectively no timeout)
     )
     return response
 
@@ -107,7 +107,7 @@ def signup(
             key="access_token",
             value=access_token,
             httponly=True,
-            max_age=1800  # 30 minutes
+            max_age=31536000  # 1 year (effectively no timeout)
         )
         return response
     except HTTPException as e:

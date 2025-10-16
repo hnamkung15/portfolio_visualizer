@@ -40,7 +40,7 @@ class AuthService:
 
     def create_access_token_for_user(self, user: User) -> str:
         """Create an access token for a user."""
-        access_token_expires = timedelta(minutes=30)
+        access_token_expires = timedelta(days=365)  # 1 year (effectively no timeout)
         access_token = create_access_token(
             data={"sub": user.username}, expires_delta=access_token_expires
         )

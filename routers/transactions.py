@@ -27,14 +27,23 @@ def view_transactions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    accounts = db.query(Account).filter(Account.user_id == current_user.id).order_by(Account.order).all()
+    accounts = (
+        db.query(Account)
+        .filter(Account.user_id == current_user.id)
+        .order_by(Account.order)
+        .all()
+    )
     transactions = []
     selected_account = None
     latest_type = ""
     latest_date = ""
 
     if account_id:
-        selected_account = db.query(Account).filter(Account.user_id == current_user.id, Account.id == account_id).first()
+        selected_account = (
+            db.query(Account)
+            .filter(Account.user_id == current_user.id, Account.id == account_id)
+            .first()
+        )
         transactions = (
             db.query(Transaction)
             .filter(Transaction.account_id == account_id)
@@ -43,14 +52,14 @@ def view_transactions(
         )
         annotate_with_balances(transactions, selected_account)
         annotate_with_quantities_by_symbol(transactions, selected_account)
-        
+
         # Add ticker names to transactions
         ticker_map = {}
         symbols = [t.symbol for t in transactions if t.symbol]
         if symbols:
             tickers = db.query(Ticker).filter(Ticker.symbol.in_(symbols)).all()
             ticker_map = {ticker.symbol: ticker.name for ticker in tickers}
-        
+
         for t in transactions:
             t.ticker_name = ticker_map.get(t.symbol, "") if t.symbol else ""
 
@@ -171,14 +180,110 @@ async def upload_csv(
     csv_file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
-    # import pandas as pd
-    # from io import StringIO
-    # from datetime import datetime
+    if account_id == 40:  # Fidelity Stock Account conviva 401k
+        db.query(Transaction).filter(Transaction.account_id == account_id).delete()
+        db.commit()
+        import pandas as pd
+        from io import StringIO
+        from datetime import datetime
 
-    # contents = await csv_file.read()
-    # df = pd.read_csv(StringIO(contents.decode("utf-8")))
-    # print(df)
+        contents = await csv_file.read()
+        df = pd.read_csv(StringIO(contents.decode("utf-8")))
 
+        def parse_date(s):
+            return datetime.strptime(s.strip(), "%m/%d/%Y").date()
+
+        for _, row in df.iloc[::-1].iterrows():
+            date = parse_date(row["Date"])
+            action = row["Action"]
+            symbol = row["Symbol"]
+            amount = row["Quantity"]
+            quantity = row["Shares"]
+
+            if "Contributions" in action:
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    type=TransactionType.DEPOSIT,
+                    amount=amount,
+                )
+                db.add(tx)
+            if "FID 500 INDEX" in symbol and (
+                "Exchanges" in action or "Contributions" in action
+            ):
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    type=TransactionType.BUY,
+                    symbol="FXAIX",
+                    price=amount / quantity,
+                    quantity=quantity,
+                    amount=amount,
+                )
+                db.add(tx)
+
+            if "Realized Gain" in action and "MORLEY STABLE VALUE" in symbol:
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    type=TransactionType.INTEREST,
+                    amount=amount,
+                )
+                db.add(tx)
+            if "FEE" in action or "TERMINATED MAINTENANCE" in action:
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    type=TransactionType.SELL,
+                    symbol="FXAIX",
+                    price=amount / quantity,
+                    quantity=-1 * quantity,
+                    amount=-1 * amount,
+                )
+                db.add(tx)
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    type=TransactionType.TAX_FEE,
+                    amount=-1 * amount,
+                )
+                db.add(tx)
+            if "Dividend" in action:
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    symbol="FXAIX",
+                    type=TransactionType.DIVIDEND,
+                    amount=amount,
+                )
+                db.add(tx)
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    type=TransactionType.BUY,
+                    symbol="FXAIX",
+                    price=amount / quantity,
+                    quantity=quantity,
+                    amount=amount,
+                )
+                db.add(tx)
+            if "Withdrawals" in action:
+                print("amount", amount)
+                print("quantity", quantity)
+                tx = Transaction(
+                    date=date,
+                    account_id=account_id,
+                    type=TransactionType.SELL,
+                    symbol="FXAIX",
+                    price=amount / quantity,
+                    quantity=-1 * quantity,
+                    amount=-1 * amount,
+                )
+                db.add(tx)
+
+            # if "Exchanges" in action:
+
+        db.commit()
     if account_id == 16:  # Fidelity Stock Account
         db.query(Transaction).filter(Transaction.account_id == account_id).delete()
         db.commit()
