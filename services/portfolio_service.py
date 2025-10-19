@@ -83,7 +83,7 @@ class Portfolio:
         h["quantity"] += quantity
         h["avg_cost"] = total_cost / h["quantity"]
 
-        self.invest += cost
+        self.invest += float(amount)
 
     def sell(self, amount, symbol, quantity, price):
         h = self.holdings[symbol]
@@ -92,14 +92,14 @@ class Portfolio:
 
         revenue = quantity * price
         cost_basis = h["avg_cost"] * quantity
-        self.cash += float(revenue)
+        self.cash += float(amount)
         h["quantity"] -= quantity
 
         realized = revenue - cost_basis
 
         self.capital_gain += realized
         h["realized_gain"] += realized
-        self.invest -= cost_basis
+        self.invest -= float(cost_basis)
 
     def process_tax_fee(self, amount):
         self.cash -= float(amount)
@@ -119,13 +119,12 @@ class Portfolio:
 
     def process_vesting(self, amount, symbol, quantity, price):
         cost = quantity * price
-
         h = self.holdings[symbol]
         total_cost = h["avg_cost"] * h["quantity"] + cost
         h["quantity"] += quantity
         h["avg_cost"] = total_cost / h["quantity"]
 
-        self.invest += amount
+        self.invest += float(amount)
 
     def process_valuation(self, date):
         print("process_valuation", date)
