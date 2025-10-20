@@ -6,7 +6,7 @@ import yfinance as yf
 from models.account import AssetType
 from models.price import Price
 from models.tickers import Ticker
-from utils.time_utils import get_pt_yesterday, active_date_until
+from utils.time_utils import get_pt_yesterday, is_consecutive_weekend, str_to_date
 
 
 def get_current_symbol_type(symbol: str):
@@ -76,28 +76,40 @@ def not_searchable_symbol(symbol):
 
 def download_ticker_data(db, ticker, start_date, end_date):
     symbol = ticker.symbol
+
+    start_date_date = str_to_date(str(start_date))
+    end_date_date = str_to_date(str(end_date))
+
     try:
-        df = fdr.DataReader(symbol, str(start_date), str(end_date))
-        if len(df) > 0:
-            for idx, row in df.iterrows():
-                db.add(
-                    Price(
-                        ticker_id=ticker.id,
-                        date=idx.date(),
-                        close=row["Close"],
-                        open=row.get("Open"),
-                        high=row.get("High"),
-                        low=row.get("Low"),
-                        volume=row.get("Volume"),
-                    )
-                )
+        if is_consecutive_weekend(str(start_date), str(end_date)):
             print(
-                f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, downloaded ({len(df)}) records"
+                f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, skipped (consecutive weekend)"
             )
         else:
-            print(
-                f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, there is no record"
-            )
+            df = fdr.DataReader(symbol, str(start_date), str(end_date))
+            df = df[
+                (df.index.date >= start_date_date) & (df.index.date <= end_date_date)
+            ]
+            if len(df) > 0:
+                for idx, row in df.iterrows():
+                    db.add(
+                        Price(
+                            ticker_id=ticker.id,
+                            date=idx.date(),
+                            close=row["Close"],
+                            open=row.get("Open"),
+                            high=row.get("High"),
+                            low=row.get("Low"),
+                            volume=row.get("Volume"),
+                        )
+                    )
+                print(
+                    f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, downloaded ({len(df)}) records"
+                )
+            else:
+                print(
+                    f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, there is no record"
+                )
         ticker.last_data_sync = end_date
         db.commit()
     except Exception as e:
@@ -223,4 +235,7 @@ def price_lookup(db, symbol: str, date):
 # print(df)
 
 # df = fdr.DataReader("USD/KRW", "2025-09-26", "2025-09-26")
+# print(df)
+
+# df = fdr.DataReader("VFFSX", "2025-10-18", "2025-10-19")
 # print(df)

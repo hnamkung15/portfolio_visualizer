@@ -64,3 +64,21 @@ def active_date_until() -> date:
         return get_pt_today()
     else:
         return get_pt_yesterday()
+
+
+def str_to_date(d: str) -> date:
+    """'YYYY-MM-DD' 문자열을 date 객체로 변환"""
+    return datetime.strptime(d, "%Y-%m-%d").date()
+
+
+def is_consecutive_weekend(start_date: str, end_date: str) -> bool:
+    """
+    Check if both start_date and end_date (given as 'YYYY-MM-DD' strings) are weekends,
+    and they are consecutive days (e.g., Saturday ~ Sunday).
+    """
+    s_date = str_to_date(start_date)
+    e_date = str_to_date(end_date)
+
+    if is_weekend(s_date) and is_weekend(e_date):
+        return (e_date - s_date).days <= 1
+    return False
