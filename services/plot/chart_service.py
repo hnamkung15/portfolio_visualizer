@@ -83,11 +83,11 @@ def total_portfolio_pie_chart(
                 individuals[category][k] = total_value_in_usd
 
     # 현금도 카테고리에 포함
-    usd_cash_in_usd = usd_portfolio.cash
-    ticker_map["USD Cash"] = "USD 현금"
-    individuals["Stable Assets"]["USD Cash"] = usd_cash_in_usd
+    # usd_cash_in_usd = usd_portfolio.cash
+    # ticker_map["USD Cash"] = "USD 현금"
+    # individuals["Stable Assets"]["USD Cash"] = usd_cash_in_usd
 
-    category_totals["Stable Assets"] += usd_cash_in_usd
+    # category_totals["Stable Assets"] += usd_cash_in_usd
 
     # krw_cash_in_usd = krw_portfolio.cash / fx_rate
     # category_totals["Stable Assets"] += usd_cash_in_usd + krw_cash_in_usd
