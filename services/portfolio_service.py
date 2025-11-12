@@ -6,7 +6,7 @@ from typing import List
 from models.account import Account
 from models.transactions import Transaction, TransactionType
 from services.market_data_service import price_lookup
-from utils.time_utils import get_pt_yesterday, is_weekend
+from utils.time_utils import get_pt_yesterday, is_weekend, active_date_until
 from models.tickers import Ticker
 
 
@@ -158,7 +158,7 @@ def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
 
     # Handle empty transactions
     if not transactions or len(transactions) == 0:
-        end_date = get_pt_yesterday()
+        end_date = active_date_until()
         return PortfolioTimeSeries(
             timestamps=[],
             cash=[],
@@ -173,7 +173,7 @@ def build_portfolio_timeseries(transactions, portfolio) -> PortfolioTimeSeries:
         )
 
     start_date = transactions[0].date
-    end_date = get_pt_yesterday()
+    end_date = active_date_until()
     num_days = (end_date - start_date).days + 1
 
     tx_idx = 0

@@ -68,6 +68,10 @@ def default_layout(title, xaxis_title, yaxis_title, yaxis_tickformat):
     )
 
 
+line_width = 3
+marker_size = 7
+
+
 # ===============================
 # 개별 그래프
 # ===============================
@@ -90,10 +94,11 @@ def return_graph(account_currency_type, data: PortfolioTimeSeries):
         go.Scatter(
             x=d["timestamps"],
             y=(d["total_income"]),
-            mode="lines",
+            mode="lines+markers",
             name="확정 소득",
             stackgroup="A",
-            line=dict(color=COLORS["pastel_orange"], width=3),
+            line=dict(color=COLORS["pastel_orange"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
 
@@ -101,10 +106,11 @@ def return_graph(account_currency_type, data: PortfolioTimeSeries):
         go.Scatter(
             x=d["timestamps"],
             y=(total_profit),
-            mode="lines",
+            mode="lines+markers",
             name="평가 수익",
             stackgroup="B",
-            line=dict(color=COLORS["pastel_green"], width=3),
+            line=dict(color=COLORS["pastel_green"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
 
@@ -142,9 +148,10 @@ def return_pct_graph(account_currency_type, data: PortfolioTimeSeries):
         go.Scatter(
             x=d["timestamps"],
             y=profit_pct,
-            mode="lines",
+            mode="lines+markers",
             name="수익률 (%)",
-            line=dict(color=COLORS["pastel_yellow"], width=3),
+            line=dict(color=COLORS["pastel_yellow"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")
@@ -180,19 +187,21 @@ def total_valuation_and_invest_graph(account_currency_type, data: PortfolioTimeS
         go.Scatter(
             x=d["timestamps"],
             y=d["invest"],
-            mode="lines",
+            mode="lines+markers",
             name="투자 금액",
             stackgroup="A",
             line=dict(color=COLORS["gray"], width=2, dash="dot"),
+            marker=dict(size=marker_size),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=d["timestamps"],
             y=d["valuation"],
-            mode="lines",
+            mode="lines+markers",
             name="평가금액",
-            line=dict(color=COLORS["pastel_green"], width=3),
+            line=dict(color=COLORS["pastel_green"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")
@@ -221,37 +230,41 @@ def realized_gain_graph(account_currency_type, data: PortfolioTimeSeries):
         go.Scatter(
             x=d["timestamps"],
             y=d["capital_gain"],
-            mode="lines",
+            mode="lines+markers",
             name="청산이익",
-            line=dict(color=COLORS["pastel_green"], width=3),
+            line=dict(color=COLORS["pastel_green"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=d["timestamps"],
             y=d["interest_income"],
-            mode="lines",
+            mode="lines+markers",
             name="이자 소득",
-            line=dict(color=COLORS["cyan"], width=3),
+            line=dict(color=COLORS["cyan"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=d["timestamps"],
             y=d["dividend_income"],
-            mode="lines",
+            mode="lines+markers",
             name="배당 소득",
-            line=dict(color=COLORS["purple"], width=3),
+            line=dict(color=COLORS["purple"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=d["timestamps"],
             y=d["total_income"],
-            mode="lines",
+            mode="lines+markers",
             name="총 확정 소득",
             stackgroup="A",
-            line=dict(color=COLORS["pastel_orange"], width=3, dash="dot"),
+            line=dict(color=COLORS["pastel_orange"], width=line_width, dash="dot"),
+            marker=dict(size=marker_size),
         )
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")
@@ -274,20 +287,22 @@ def total_capital_and_cash_graph(account_currency_type, data: PortfolioTimeSerie
         go.Scatter(
             x=d["timestamps"],
             y=d["cash"],
-            mode="lines",
+            mode="lines+markers",
             name="현금",
             stackgroup="A",
             line=dict(color="blue"),
+            marker=dict(size=marker_size),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=d["timestamps"],
             y=d["valuation"],
-            mode="lines",
+            mode="lines+markers",
             name="평가 금액",
             stackgroup="A",
             line=dict(color="green"),
+            marker=dict(size=marker_size),
         )
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")
@@ -317,20 +332,22 @@ def cash_and_interest_graph(account_currency_type, data: PortfolioTimeSeries):
         go.Scatter(
             x=d["timestamps"],
             y=cash_minus_interest,
-            mode="lines",
+            mode="lines+markers",
             name="현금",
             stackgroup="A",
             line=dict(color="blue"),
+            marker=dict(size=marker_size),
         )
     )
     fig.add_trace(
         go.Scatter(
             x=d["timestamps"],
             y=d["total_income"],
-            mode="lines",
+            mode="lines+markers",
             name="이자 수익",
             stackgroup="A",
-            line=dict(color=COLORS["cyan"], width=3),
+            line=dict(color=COLORS["cyan"], width=line_width),
+            marker=dict(size=marker_size),
         )
     )
     fig.update_xaxes(tickformat="%Y-%m-%d")

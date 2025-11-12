@@ -245,8 +245,8 @@ def price_lookup(db, symbol: str, date):
     return None
 
 
-df = fdr.DataReader("FXAIX", "2025-11-1", "2025-11-11")
-print(df)
+# df = fdr.DataReader("FXAIX", "2025-11-1", "2025-11-11")
+# print(df)
 
 # df = fdr.DataReader("USD/KRW", "2025-09-26", "2025-09-26")
 # print(df)
