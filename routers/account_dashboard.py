@@ -34,7 +34,12 @@ def view_transactions(
     account_id: int = None,
     db: Session = Depends(get_db),
 ):
-    accounts = db.query(Account).filter(Account.user_id == current_user.id).order_by(Account.order).all()
+    accounts = (
+        db.query(Account)
+        .filter(Account.user_id == current_user.id)
+        .order_by(Account.order)
+        .all()
+    )
     if account_id is None:
         return templates.TemplateResponse(
             "account_dashboard/account_dashboard.html",
@@ -53,7 +58,11 @@ def view_transactions(
     transactions = []
     selected_account = None
 
-    selected_account = db.query(Account).filter(Account.user_id == current_user.id, Account.id == account_id).first()
+    selected_account = (
+        db.query(Account)
+        .filter(Account.user_id == current_user.id, Account.id == account_id)
+        .first()
+    )
     transactions = (
         db.query(Transaction)
         .filter(Transaction.account_id == account_id)
@@ -80,9 +89,9 @@ def view_transactions(
 
     if selected_account.account_type == AccountType.STOCK:
         graph_funcs = [
+            total_valuation_and_invest_graph,
             return_graph,
             return_pct_graph,
-            total_valuation_and_invest_graph,
             realized_gain_graph,
             total_capital_and_cash_graph,
         ]

@@ -91,7 +91,9 @@ def download_ticker_data(db, ticker, start_date, end_date):
         )
     else:
         try:
-            df = fdr.DataReader(symbol, str(start_date), str(end_date))
+            df = fdr.DataReader(
+                symbol, str(start_date), str(end_date + timedelta(days=1))
+            )
             df = df[
                 (df.index.date >= start_date_date) & (df.index.date <= end_date_date)
             ]
@@ -124,12 +126,12 @@ def download_ticker_data(db, ticker, start_date, end_date):
                 print(
                     f"[market_data_service] During {start_date} ~ {end_date} for {symbol}, there is no record"
                 )
-            ticker.last_data_sync = end_date
-            db.commit()
         except Exception as e:
             print(
                 f"[Error] data download failed during {start_date} ~ {end_date} for {symbol}: {e}"
             )
+        ticker.last_data_sync = end_date
+        db.commit()
 
     return ticker
 
@@ -179,7 +181,17 @@ def sync_symbol_if_needed(db, symbol: str, active_date):
     last_sync = last_syncup_time.get(symbol)
 
     if last_sync is None or last_sync < active_date:
-        start_date = last_sync + timedelta(days=1) if last_sync else data_starting_date
+        ticker = db.query(Ticker).filter_by(symbol=symbol).first()
+        last_price = (
+            db.query(Price)
+            .filter(Price.ticker_id == ticker.id)
+            .order_by(Price.date.desc())
+            .first()
+        )
+
+        start_date = (
+            last_price.date + timedelta(days=1) if last_price else data_starting_date
+        )
 
         ticker = db.query(Ticker).filter_by(symbol=symbol).first()
         ticker = download_ticker_data(db, ticker, start_date, active_date)
@@ -214,14 +226,12 @@ def price_lookup(db, symbol: str, date):
         return None
 
     active_date = active_date_until()
-    # this failed due to VFFSX -- this value is finalized at the late night
-
     # active_date = get_pt_yesterday()
 
     if active_date < date:
         return None
 
-    print("price_lookup", symbol, date)
+    # print("price_lookup", symbol, date)
 
     # below 2 functions are irrelevant to "date" value
     # based on active_date, these functions try to make price data
@@ -240,12 +250,15 @@ def price_lookup(db, symbol: str, date):
         .first()
     )
     if past_price:
+        print(
+            f"[Warning] use past data for {symbol}, {date} is requested, but {past_price.date} is returned"
+        )
         return float(past_price.close)
     print("[Error] no data?", symbol, date)
     return None
 
 
-# df = fdr.DataReader("FXAIX", "2025-11-1", "2025-11-11")
+# df = fdr.DataReader("VFFSX", "2025-11-1", "2025-11-12")
 # print(df)
 
 # df = fdr.DataReader("USD/KRW", "2025-09-26", "2025-09-26")
@@ -254,5 +267,5 @@ def price_lookup(db, symbol: str, date):
 # df = fdr.DataReader("GOOG", "2025-10-01", "2025-11-07")
 # print(df)
 
-# df = fdr.DataReader("GOOG", "2025-10-01", "2025-11-07")
+# df = fdr.DataReader("GOOG", "2025-10-01", "2025-11-12")
 # print(df)

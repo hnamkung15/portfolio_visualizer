@@ -130,6 +130,8 @@ class Portfolio:
         print("process_valuation", date)
         valuation = 0
         for symbol, h in self.holdings.items():
+            if abs(h["quantity"]) < 1e-6:
+                continue
             price = price_lookup(self.db, symbol, date)
             if price:
                 # print("[portfolio_service], price found", date, symbol, price)
